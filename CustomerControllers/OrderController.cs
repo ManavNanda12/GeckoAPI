@@ -48,6 +48,50 @@ namespace GeckoAPI.CustomerControllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Get Order List
+        /// </summary>
+        [HttpGet("get-order-list/{CustomerId}")]
+        public async Task<BaseAPIResponse<List<OrderListResponse>>> GetOrderList(long CustomerId)
+        {
+            var response = new BaseAPIResponse<List<OrderListResponse>>();
+            try
+            {
+                var orders = await _orderService.GetOrderList(CustomerId);
+                response.Data = orders;
+                response.Success = true;
+                response.Message = "Orders fetched successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Get Order Detail
+        /// </summary>
+        [HttpGet("get-order-detail/{OrderId}")]
+        public async Task<BaseAPIResponse<List<OrderDetailResponse>>> GetOrderDetail(long OrderId)
+        {
+            var response = new BaseAPIResponse<List<OrderDetailResponse>>();
+            try
+            {
+                var orderdetail = await _orderService.GetOrderDetail(OrderId);
+                response.Data = orderdetail;
+                response.Success = true;
+                response.Message = "Orders details fetched successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
         #endregion
     }
 }
