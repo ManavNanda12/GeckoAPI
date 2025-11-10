@@ -3,51 +3,37 @@
 # ========================================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
-# Set working directory
+# Install git for submodule support
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /src
 
-# Copy everything (including submodules)
+# Copy csproj first for better layer caching
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copy everything else
 COPY . .
 
-# Initialize and update git submodules only when this is actually a git checkout
-RUN if [ -f .gitmodules ] && [ -d .git ]; then \
-      git submodule init && git submodule update --recursive; \
-    else \
-      echo "No .git or .gitmodules found — skipping submodule init"; \
+# Initialize git submodules if they exist
+RUN if [ -d .git ] && [ -f .gitmodules ]; then \
+      git submodule update --init --recursive; \
     fi
 
-# Locate a .csproj file in the context, save its path, and restore
-RUN set -eux; \
-    proj=$(find . -type f -name '*.csproj' | head -n 1 || true); \
-    if [ -z "$proj" ]; then \
-      echo "ERROR: no .csproj file found in build context."; \
-      echo "Repository tree:"; ls -la; echo; ls -R . | sed -n '1,200p'; \
-      exit 1; \
-    fi; \
-    echo "Using project: $proj"; \
-    echo "$proj" > /tmp/PROJECT_PATH; \
-    dotnet restore "$proj"
-
-# Build the project in Release mode
-RUN dotnet build "$(cat /tmp/PROJECT_PATH)" -c Release -o /app/build
+# Build
+RUN dotnet build -c Release -o /app/build
 
 # ========================================
 # Stage 2: Publish
 # ========================================
 FROM build AS publish
-RUN dotnet publish "$(cat /tmp/PROJECT_PATH)" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # ========================================
-# Stage 3: Runtime Image
+# Stage 3: Runtime
 # ========================================
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-
-# Copy published output from build stage
 COPY --from=publish /app/publish .
-
-# Expose port (adjust as needed)
 EXPOSE 8080
-
-# Set entrypoint
 ENTRYPOINT ["dotnet", "GeckoAPI.dll"]
