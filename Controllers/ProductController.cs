@@ -2,8 +2,10 @@
 using GeckoAPI.Common;
 using GeckoAPI.Model.models;
 using GeckoAPI.Service.product;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
 
 namespace GeckoAPI.Controllers
 {
@@ -36,8 +38,23 @@ namespace GeckoAPI.Controllers
             var response = new BaseAPIResponse<List<Products>>();
             try
             {
+                var baseUrl = GetBaseUrl();
                 var products = await _productService.GetProductList(model);
-                response.Data = products;
+                var productList = products.Select(c => new Products
+                {
+                    ProductID = c.ProductID,
+                    CategoryID = c.CategoryID,
+                    CategoryName = c.CategoryName,
+                    ProductName = c.ProductName,
+                    ProductDescription = c.ProductDescription,
+                    Price = c.Price,
+                    TotalRecords = c.TotalRecords,
+                    SKU = c.SKU,
+                    ProductImage = !string.IsNullOrEmpty(c.ProductImage)
+             ? $"{baseUrl}/{c.ProductImage}"
+             : null
+                }).ToList();
+                response.Data = productList;
                 response.Success = true;
                 response.Message = "Products fetched successfully.";
             }
@@ -143,41 +160,181 @@ namespace GeckoAPI.Controllers
             return response;
         }
 
-        /// <summary>
-        /// Save Product Image
-        /// </summary>        
         [HttpPost("save-product-image")]
-        public async Task<BaseAPIResponse<long>> SaveCategoryImage([FromForm] SaveProductImageModel model)
+        public async Task<BaseAPIResponse<long>> SaveProductImage([FromForm] SaveProductImageModel model)
         {
             var response = new BaseAPIResponse<long>();
             try
             {
-                if (CommonHelper.IsValidImageFile(model.ImageFile) == false)
+                // Validation
+                if (model.ImageFile == null || model.ImageFile.Count == 0)
                 {
                     response.Success = false;
-                    response.Message = "Please upload a valid image file.";
+                    response.Message = "Please upload at least one image.";
                     return response;
                 }
+
+                var uploadedImages = await  _productService.GetProductImages(model.ProductId);
+                if (model.ImageFile.Count > 5 || uploadedImages.Count == 5)
+                {
+                    response.Success = false;
+                    response.Message = "You can upload a maximum of 5 images per product.";
+                    return response;
+                }
+
+                // Get current user
+                model.CreatedBy = (int?)HttpContext.Items["UserId"] ?? 1;
+
+                // If updating, delete old images first
+                //if (model.ProductId > 0)
+                //{
+                //    var existingImages = await _productService.GetProductImages(model.ProductId);
+                //    foreach (var img in existingImages)
+                //    {
+                //        var fullPath = Path.Combine(_environment.WebRootPath, img.ImageUrl.Replace("/", Path.DirectorySeparatorChar.ToString()));
+                //        if (System.IO.File.Exists(fullPath))
+                //        {
+                //            System.IO.File.Delete(fullPath);
+                //        }
+                //    }
+                //}
+
+                // Create ProductImages directory if it doesn't exist
                 string productImagesPath = Path.Combine(_environment.WebRootPath, "ProductImages");
                 if (!Directory.Exists(productImagesPath))
                 {
                     Directory.CreateDirectory(productImagesPath);
                 }
-                // Generate GUID for filename
-                string fileExtension = Path.GetExtension(model.ImageFile.FileName);
-                string guidFileName = $"{Guid.NewGuid()}{fileExtension}";
-                string filePath = Path.Combine(productImagesPath, guidFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ImageFile.CopyToAsync(fileStream);
-                }
-                model.ImageUrl = $"ProductImages/{guidFileName}";
 
-                var result = await _productService.SaveProductImage(model);
-                response.Success = true;
-                if (result > 0)
+                long lastSavedId = 0;
+
+                // 🔁 Save each image one by one
+                foreach (var file in model.ImageFile)
                 {
-                    response.Message = "Product image added successfully";
+                    // Generate GUID for filename
+                    string fileExtension = Path.GetExtension(file.FileName);
+                    string guidFileName = $"{Guid.NewGuid()}{fileExtension}";
+                    string filePath = Path.Combine(productImagesPath, guidFileName);
+
+                    // Save file to disk
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Create single image model with URL
+                    var singleImageModel = new SaveProductImageModel
+                    {
+                        ProductId = model.ProductId,
+                        ImageUrl = $"ProductImages/{guidFileName}", // Store the URL path
+                        IsPrimary = model.IsPrimary ?? false,
+                        CreatedBy = model.CreatedBy
+                    };
+
+                    // Call service for each image
+                    var result = await _productService.SaveProductImage(singleImageModel);
+                    lastSavedId = result;
+                }
+
+                response.Success = true;
+                response.Message = "Product images saved successfully.";
+                response.Data = lastSavedId;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Get product images
+        /// </summary>
+        [HttpGet("get-product-images/{ProductId}")]
+        public async Task<BaseAPIResponse<List<ProductImagesResponseModel>>> GetProductImages(long ProductId)
+        {
+            var response = new BaseAPIResponse<List<ProductImagesResponseModel>>();
+            try
+            {
+                var products = await _productService.GetProductImages(ProductId);
+                var baseUrl = GetBaseUrl();
+                var productImageList = products.Select(c => new ProductImagesResponseModel
+                {
+                    ImageID = c.ImageID,
+                    ProductId = c.ProductId,
+                    IsPrimary = c.IsPrimary,
+                    ImageUrl = !string.IsNullOrEmpty(c.ImageUrl)
+                 ? $"{baseUrl}/{c.ImageUrl}"
+                 : null
+                }).ToList();
+                response.Data = productImageList;
+                response.Success = true;
+                response.Message = "Product images fetched successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Delete Product Image
+        /// </summary>
+        [HttpPost("delete-product-image")]
+        public async Task<BaseAPIResponse<long>> DeleteProductImage(ProductDeleteRequestModel model)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+                var deletedBy = (int?)HttpContext.Items["UserId"];
+                var productImages = await _productService.GetProductImages(model.ProductId);
+                var isDeleted = await _productService.DeleteProductImage(model.ImageId,(long)deletedBy);
+                var imageUrl = productImages.FirstOrDefault(x => x.ImageID == model.ImageId)?.ImageUrl ?? "";
+                if(isDeleted > 0)
+                {
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        DeletePhysicalFile(imageUrl);
+                    }
+                    response.Success = true;
+                    response.Message = "Product image deleted successfully.";
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Please try later, Some issue occuring deleting image";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Make Product Image Primary
+        /// </summary>
+        [HttpGet("set-primary-image/{ImageId}")]
+        public async Task<BaseAPIResponse<long>> SetProductImagePrimary(long ImageId)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+                var isPrimarySet = await _productService.SetProductImagePrimary(ImageId);
+                if (isPrimarySet > 0)
+                {
+                    response.Success = true;
+                    response.Message = "Product image set as primary successfully.";
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Please try later, Some issue occuring setting image primary";
                 }
             }
             catch (Exception ex)
@@ -194,6 +351,27 @@ namespace GeckoAPI.Controllers
             if (request == null) return string.Empty;
 
             return $"{request.Scheme}://{request.Host}";
+        }
+
+        /// <summary>
+        /// Delete physical file from server
+        /// </summary>
+        private void DeletePhysicalFile(string imageUrl)
+        {
+            try
+            {
+                var webRootPath = _environment.WebRootPath;
+                imageUrl = imageUrl.TrimStart('/');
+                var filePath = Path.Combine(webRootPath, imageUrl);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting physical file: {ex.Message}");
+            }
         }
         #endregion
     }

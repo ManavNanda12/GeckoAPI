@@ -3,9 +3,14 @@ using DemoWebAPI.Repository;
 using DemoWebAPI.Service;
 using GeckoAPI.Common;
 using GeckoAPI.Model.models;
+using GeckoAPI.Service.customer;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using static GeckoAPI.Common.CommonHelper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +34,21 @@ builder.Services.AddAuthentication("Bearer")
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
         };
     });
+
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection"),
+        new SqlServerStorageOptions
+        {
+            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+            QueuePollInterval = TimeSpan.Zero,
+            UseRecommendedIsolationLevel = true,
+            DisableGlobalLocks = true
+        }));
+
 
 builder.Services.AddAuthorization();
 
@@ -91,6 +111,9 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHangfireServer();
+builder.Services.AddHttpClient();
+builder.Services.AddTransient<EmailJob>();
 
 
 var app = builder.Build();
@@ -102,6 +125,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+});
+
+
+// Register recurring job:
+RecurringJob.AddOrUpdate<EmailJob>(
+    "send-welcome-emails",
+    job => job.SendWelcomeEmailsViaApi(),
+    "*/15 * * * *");
+
+
 app.UseCors("AllowLocalhost");
 app.UseStaticFiles();
 app.UseHttpsRedirection();

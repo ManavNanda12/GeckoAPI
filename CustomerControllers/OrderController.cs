@@ -22,23 +22,42 @@ namespace GeckoAPI.CustomerControllers
         #endregion
         #region Methods
         [HttpPost("checkout")]
-        public async Task<BaseAPIResponse<long>> CheckoutOrder([FromBody] CheckoutOrderRequestModel model)
+        public async Task<BaseAPIResponse<CheckoutResponseModel>> CheckoutOrder([FromBody] CheckoutOrderRequestModel model)
         {
-            var response = new BaseAPIResponse<long>();
+            var response = new BaseAPIResponse<CheckoutResponseModel>();
             try
             {
-                var isOrdered = await _orderService.CheckoutOrder(model);
-                if(isOrdered == -1)
+                var checkoutResult = await _orderService.CheckoutOrder(model);
+
+                if (checkoutResult.Result == -1)
                 {
+                    // Cart not found or already processed
                     response.Success = false;
-                    response.Message = "Cart is not valid.";
-                    return response;
+                    response.Message = checkoutResult.Message;
                 }
-                else if(isOrdered > 0)
+                else if (checkoutResult.Result == -2)
                 {
-                    response.Success = true;
-                    response.Message = "Order placed successfully.";
+                    // Insufficient stock
+                    response.Success = false;
+                    response.Message = checkoutResult.Message;
+                    response.Data = new CheckoutResponseModel
+                    {
+                        OutOfStockItems = checkoutResult.OutOfStockItems
+                    };
                 }
+                else if (checkoutResult.Result == 1)
+                {
+                    // Success
+                    response.Success = true;
+                    response.Message = checkoutResult.Message;
+                    response.Data = new CheckoutResponseModel
+                    {
+                        OrderId = checkoutResult.OrderId,
+                        OrderNumber = checkoutResult.OrderNumber,
+                        Total = checkoutResult.Total
+                    };
+                }
+
                 return response;
             }
             catch (Exception ex)
@@ -48,6 +67,16 @@ namespace GeckoAPI.CustomerControllers
             }
             return response;
         }
+
+        // Response model for API
+        public class CheckoutResponseModel
+        {
+            public long OrderId { get; set; }
+            public string OrderNumber { get; set; }
+            public decimal Total { get; set; }
+            public List<OutOfStockItem> OutOfStockItems { get; set; }
+        }
+
 
         /// <summary>
         /// Get Order List
