@@ -1,10 +1,10 @@
-# Use the ASP.NET runtime as base
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Use the ASP.NET runtime as base - UPDATED TO .NET 9.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-# Use SDK for building
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Use SDK for building - UPDATED TO .NET 9.0
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy everything
