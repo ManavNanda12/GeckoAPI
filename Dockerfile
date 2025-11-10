@@ -3,31 +3,32 @@
 # ========================================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
-# Install git for submodule support
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /src
 
-# Copy csproj first for better layer caching
-COPY *.csproj ./
+# Copy the solution file
+COPY *.sln ./
+
+# Copy all .csproj files (maintain directory structure)
+COPY GeckoAPI/*.csproj ./GeckoAPI/
+COPY Model/*.csproj ./Model/
+COPY Common/*.csproj ./Common/
+COPY Repository/*.csproj ./Repository/
+COPY Service/*.csproj ./Service/
+
+# Restore all projects
 RUN dotnet restore
 
-# Copy everything else
+# Copy everything else (all source files)
 COPY . .
 
-# Initialize git submodules if they exist
-RUN if [ -d .git ] && [ -f .gitmodules ]; then \
-      git submodule update --init --recursive; \
-    fi
-
-# Build
+# Build the main project
 RUN dotnet build -c Release -o /app/build
 
 # ========================================
 # Stage 2: Publish
 # ========================================
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish ./GeckoAPI/GeckoAPI.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # ========================================
 # Stage 3: Runtime
