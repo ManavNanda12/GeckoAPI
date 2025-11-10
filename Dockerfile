@@ -1,25 +1,21 @@
-# Use the ASP.NET runtime as base
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-WORKDIR /app
-EXPOSE 8080
-
-# Use SDK for building
+# Stage 1: Build and Restore
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-
-# Copy everything
+COPY ["GeckoAPI.csproj", "./"]
+RUN dotnet restore "GeckoAPI.csproj"
 COPY . .
+RUN dotnet build "GeckoAPI.csproj" -c Release -o /app/build
 
-# Restore and build from solution file if you have one, or the main project
-RUN dotnet restore "GeckoAPI.sln"
+# Stage 2: Publish
+FROM build AS publish
+RUN dotnet publish "GeckoAPI.csproj" -c Release -o /app/publish
 
-# Build
-RUN dotnet build "GeckoAPI.sln" -c Release
+# Stage 3: Runtime (your existing "base" and "final")
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
-# Publish the main API project
-RUN dotnet publish "GeckoAPI/GeckoAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-# Final stage
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
