@@ -9,8 +9,13 @@ WORKDIR /src
 # Copy everything (including submodules)
 COPY . .
 
-# Initialize and update git submodules
-RUN git submodule init && git submodule update --recursive
+# Initialize and update git submodules only when this is actually a git checkout
+# (prevents failure when building from an archive or when .git is not present)
+RUN if [ -f .gitmodules ] && [ -d .git ]; then \
+      git submodule init && git submodule update --recursive; \
+    else \
+      echo "No .git or .gitmodules found — skipping submodule init"; \
+    fi
 
 # Restore dependencies for the main API project
 RUN dotnet restore "GeckoAPI/GeckoAPI.csproj"
