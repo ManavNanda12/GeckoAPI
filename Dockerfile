@@ -40,7 +40,7 @@ RUN dotnet publish "$(cat /tmp/PROJECT_PATH)" -c Release -o /app/publish /p:UseA
 # ========================================
 # Stage 3: Runtime Image
 # ========================================
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
 # Copy published output from build stage
