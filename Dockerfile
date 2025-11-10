@@ -1,38 +1,23 @@
-# ========================================
-# Stage 1: Restore & Build
-# ========================================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-
 WORKDIR /src
 
-# Copy the solution file
-COPY *.sln ./
-
-# Copy all .csproj files (maintain directory structure)
-COPY GeckoAPI/*.csproj ./GeckoAPI/
-COPY Model/*.csproj ./Model/
-COPY Common/*.csproj ./Common/
-COPY Repository/*.csproj ./Repository/
-COPY Service/*.csproj ./Service/
-
-# Restore all projects
-RUN dotnet restore
-
-# Copy everything else (all source files)
+# Copy everything
 COPY . .
 
-# Build the main project
-RUN dotnet build -c Release -o /app/build
+# Debug: Show what we have
+RUN echo "===== Directory Structure =====" && \
+    find . -maxdepth 3 -type f -name "*.sln" -o -name "*.csproj" | head -20
 
-# ========================================
-# Stage 2: Publish
-# ========================================
-FROM build AS publish
-RUN dotnet publish ./GeckoAPI/GeckoAPI.csproj -c Release -o /app/publish /p:UseAppHost=false
+# Find and restore the solution
+RUN dotnet restore "$(find . -maxdepth 2 -name '*.sln' | head -1)"
 
-# ========================================
-# Stage 3: Runtime
-# ========================================
+# Build
+RUN dotnet build -c Release
+
+# Find the main API project and publish
+RUN dotnet publish "$(find . -maxdepth 2 -path '*/GeckoAPI.csproj' | head -1)" \
+    -c Release -o /app/publish /p:UseAppHost=false
+
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
