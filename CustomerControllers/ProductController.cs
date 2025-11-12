@@ -1,12 +1,14 @@
 ﻿using DemoWebAPI.model.Models;
 using GeckoAPI.Model.models;
 using GeckoAPI.Service.product;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Buffers.Text;
 
 namespace GeckoAPI.CustomerControllers
 {
+    [Authorize]
     [Route("api/customer/product")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -30,6 +32,7 @@ namespace GeckoAPI.CustomerControllers
         /// <summary>
         /// Get All Products
         /// </summary>
+        [AllowAnonymous]
         [HttpGet("get-product-list/{CategoryId}")]
         public async Task<BaseAPIResponse<List<Products>>> GetProductList(long CategoryId)
         {
@@ -37,7 +40,9 @@ namespace GeckoAPI.CustomerControllers
             try
             {
                 var baseUrl = GetBaseUrl();
-                var products = await _productService.GetCustomerProductList(CategoryId);
+                object userIdObject = HttpContext.Items["UserId"];
+                long CustomerId = userIdObject != null ? Convert.ToInt64(userIdObject) : 0;
+                var products = await _productService.GetCustomerProductList(CategoryId, CustomerId);
                 var productList = products.Select(c => new Products
                 {
                     ProductID = c.ProductID,
@@ -47,6 +52,7 @@ namespace GeckoAPI.CustomerControllers
                     ProductDescription = c.ProductDescription,
                     Price = c.Price,
                     TotalRecords = c.TotalRecords,
+                    IsWishlistItem = c.IsWishlistItem,
                     SKU = c.SKU,
                     ProductImage = !string.IsNullOrEmpty(c.ProductImage)
             ? $"{baseUrl}/{c.ProductImage}"
