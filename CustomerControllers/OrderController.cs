@@ -3,6 +3,7 @@ using GeckoAPI.Model.models;
 using GeckoAPI.Service.order;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
 
 namespace GeckoAPI.CustomerControllers
 {
@@ -12,12 +13,14 @@ namespace GeckoAPI.CustomerControllers
     {
         #region Fields
         private readonly IOrderService _orderService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         #endregion
 
         #region Constructor
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IHttpContextAccessor httpContextAccessor)
         {
             _orderService = orderService;
+            _httpContextAccessor = httpContextAccessor;
         }
         #endregion
         #region Methods
@@ -109,8 +112,29 @@ namespace GeckoAPI.CustomerControllers
             var response = new BaseAPIResponse<List<OrderDetailResponse>>();
             try
             {
+                var baseUrl = this.GetBaseUrl();
                 var orderdetail = await _orderService.GetOrderDetail(OrderId);
-                response.Data = orderdetail;
+                var updatedOrderDetail = orderdetail.Select(c => new OrderDetailResponse
+                {
+                    ProductId = c.ProductId,
+                    LineTotal = c.LineTotal,
+                    Discount = c.Discount,
+                    ProductName = c.ProductName,
+                    ProductDescription = c.ProductDescription,
+                    DiscountAmount = c.DiscountAmount,
+                    PaymentStatus = c.PaymentStatus,
+                    PaymentMethod = c.PaymentMethod,
+                    Id = c.Id,
+                    Quantity = c.Quantity,
+                    TaxAmount = c.TaxAmount,
+                    ShippingAmount = c.ShippingAmount,
+                    Total = c.Total,
+                    UnitPrice = c.UnitPrice,
+                    ImageUrl = !string.IsNullOrEmpty(c.ImageUrl)
+            ? $"{baseUrl}/{c.ImageUrl}"
+            : null
+                }).ToList();
+                response.Data = updatedOrderDetail;
                 response.Success = true;
                 response.Message = "Orders details fetched successfully.";
             }
@@ -120,6 +144,14 @@ namespace GeckoAPI.CustomerControllers
                 response.Message = $"An error occurred: {ex.Message}";
             }
             return response;
+        }
+
+        private string GetBaseUrl()
+        {
+            var request = _httpContextAccessor.HttpContext?.Request;
+            if (request == null) return string.Empty;
+
+            return $"{request.Scheme}://{request.Host}";
         }
         #endregion
     }
