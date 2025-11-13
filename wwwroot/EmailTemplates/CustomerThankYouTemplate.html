@@ -1,0 +1,177 @@
+﻿<!-- ========================================
+     TEMPLATE 1: Customer Thank You Email
+     File: CustomerThankYouTemplate.html
+     ======================================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - FitLife Gym</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #ff6b35;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #d0d0d0;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: rgba(255, 107, 53, 0.1);
+            border-left: 4px solid #ff6b35;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+            .info-box p {
+                color: #e0e0e0;
+                font-size: 15px;
+                margin: 8px 0;
+            }
+
+            .info-box strong {
+                color: #ff6b35;
+            }
+
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+            .footer p {
+                font-size: 13px;
+                color: #707070;
+                margin: 5px 0;
+            }
+
+            .footer a {
+                color: #ff6b35;
+                text-decoration: none;
+            }
+
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">💪 FITLIFE</div>
+        </div>
+
+        <div class="content">
+            <div class="icon-circle">✓</div>
+
+            <h1>Thank You!</h1>
+
+            <p class="greeting">Hi {{CustomerName}},</p>
+
+            <p class="message">
+                Thank you for reaching out to us! We've successfully received your request and our team is already looking into it.
+            </p>
+
+            <p class="message">
+                We understand your time is valuable, and we're committed to getting back to you as soon as possible. You can expect a response from our team within 24-48 hours.
+            </p>
+
+            <div class="info-box">
+                <p><strong>📧 What happens next?</strong></p>
+                <p>• Our team will review your request carefully</p>
+                <p>• We'll prepare a detailed response</p>
+                <p>• You'll receive an email from us shortly</p>
+            </div>
+
+            <p class="message">
+                In the meantime, if you have any urgent questions or need immediate assistance, feel free to reach out to us directly.
+            </p>
+
+            <p class="message" style="margin-top: 30px; font-weight: 600; color: #ffffff;">
+                Best regards,<br>
+                The FitLife Gym Team
+            </p>
+        </div>
+
+        <div class="footer">
+            <p><strong>FitLife Gym</strong></p>
+            <p>123 Fitness Street, Muscle City, MC 12345</p>
+            <p>📧 <a href="mailto:support@fitlifegym.com">support@fitlifegym.com</a> | 📞 (555) 123-4567</p>
+            <p style="margin-top: 15px; color: #505050;">
+                &copy; {{Year}} FitLife Gym. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
