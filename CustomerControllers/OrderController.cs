@@ -1,5 +1,6 @@
 ﻿using DemoWebAPI.model.Models;
 using GeckoAPI.Model.models;
+using GeckoAPI.Service.coupon;
 using GeckoAPI.Service.order;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,15 @@ namespace GeckoAPI.CustomerControllers
         #region Fields
         private readonly IOrderService _orderService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICouponService _couponService;
         #endregion
 
         #region Constructor
-        public OrderController(IOrderService orderService, IHttpContextAccessor httpContextAccessor)
+        public OrderController(IOrderService orderService, IHttpContextAccessor httpContextAccessor , ICouponService couponService)
         {
             _orderService = orderService;
             _httpContextAccessor = httpContextAccessor;
+            _couponService = couponService;
         }
         #endregion
         #region Methods
@@ -152,6 +155,38 @@ namespace GeckoAPI.CustomerControllers
             if (request == null) return string.Empty;
 
             return $"{request.Scheme}://{request.Host}";
+        }
+
+        /// <summary>
+        /// Apply coupon
+        /// </summary>        
+        [HttpGet("apply-coupon/{couponCode}")]
+        public async Task<BaseAPIResponse<ApplyCouponResult>> ApplyCoupon(string couponCode)
+        {
+            var response = new BaseAPIResponse<ApplyCouponResult>();
+            try
+            {
+
+                var isCouponApplied = await _couponService.ApplyCoupon(couponCode);
+                response.Data = isCouponApplied;
+                if (isCouponApplied.StatusCode <= 0)
+                {
+                    response.Success = false;
+                    response.Message = isCouponApplied.Message;
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Message = isCouponApplied.Message;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
         }
         #endregion
     }
