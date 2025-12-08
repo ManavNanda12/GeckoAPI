@@ -153,6 +153,32 @@ namespace GeckoAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Delete Customer
+        /// </summary>        
+        [HttpDelete("delete-customer/{CustomerId}")]
+        public async Task<BaseAPIResponse<long>> DeleteCustomer(long CustomerId)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+                // Fetch all users using the service
+                var result = await _customerService.DeleteCustomer(CustomerId);
+                response.Success = true;
+                if (result == 0)
+                {
+                    response.Message = "Customer deleted successfully.";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and set error response
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
         #endregion
     }
 }
