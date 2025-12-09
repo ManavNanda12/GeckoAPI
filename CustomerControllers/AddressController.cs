@@ -78,6 +78,36 @@ namespace GeckoAPI.CustomerControllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Update default address
+        /// </summary>        
+        [HttpGet("update-default-address/{addressId}")]
+        public async Task<BaseAPIResponse<long>> DefaultAddressChange(long addressId)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+
+                var isUpdated = await _addressService.DefaultAddressChange(addressId);
+                if (isUpdated > 0)
+                {
+                    response.Success = true;
+                    response.Message = "Address updated as default successfully.";
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Failed to update default address.";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
         #endregion
     }
 }
