@@ -108,6 +108,41 @@ namespace GeckoAPI.CustomerControllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Delete Address
+        /// </summary>        
+        [HttpDelete("delete-address/{addressId}")]
+        public async Task<BaseAPIResponse<long>> DeleteAddress(long addressId)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+
+                var isDeleted = await _addressService.DeleteAddress(addressId);
+                if (isDeleted > 0)
+                {
+                    response.Success = true;
+                    response.Message = "Address deleted successfully.";
+                }
+                else if(isDeleted == -1)
+                {
+                    response.Success = false;
+                    response.Message = "You cannot delete default address.";
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Failed to update default address.";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
         #endregion
     }
 }
