@@ -81,6 +81,31 @@ namespace GeckoAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Get coupon used details
+        /// </summary>
+        [HttpGet("get-coupon-details/{CouponId}")]
+        public async Task<BaseAPIResponse<List<CouponUsedListResponseModel>>> GetCouponList(long CouponId)
+        {
+            var response = new BaseAPIResponse<List<CouponUsedListResponseModel>>();
+            try
+            {
+                var couponList = await _couponService.GetUsedCouponDetails(CouponId);
+
+                // Set the response data
+                response.Data = couponList;
+                response.Success = true;
+                response.Message = "Coupon details fetched successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and set error response
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
         #endregion
 
 

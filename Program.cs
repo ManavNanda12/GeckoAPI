@@ -9,6 +9,7 @@ using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Text;
 using static GeckoAPI.Common.CommonHelper;
 
@@ -121,6 +122,17 @@ builder.Services.AddHangfireServer();
 builder.Services.AddHttpClient();
 builder.Services.AddTransient<EmailJob>();
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+});
+
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(
+        builder.Configuration["Redis:ConnectionString"]
+    ));
+
 
 var app = builder.Build();
 
@@ -141,6 +153,15 @@ RecurringJob.AddOrUpdate<EmailJob>(
     "send-welcome-emails",
     job => job.SendWelcomeEmailsViaApi(),
     "*/15 * * * *");
+RecurringJob.AddOrUpdate<EmailJob>(
+    "clear-cache-memory",
+    job=> job.ClearAllCache(),
+    "0 0 * * *"
+    );
+RecurringJob.AddOrUpdate<EmailJob>(
+    "send-monthly-reports",
+    job => job.SendMonthlySalesReportViaApi(),
+     "0 2 1 * *");
 
 
 app.UseCors("AllowLocalhost");

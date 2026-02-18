@@ -125,6 +125,7 @@ namespace GeckoAPI.CustomerControllers
                     ProductName = c.ProductName,
                     ProductDescription = c.ProductDescription,
                     DiscountAmount = c.DiscountAmount,
+                    CouponCode = c.CouponCode,
                     PaymentStatus = c.PaymentStatus,
                     PaymentMethod = c.PaymentMethod,
                     Id = c.Id,
@@ -160,14 +161,14 @@ namespace GeckoAPI.CustomerControllers
         /// <summary>
         /// Apply coupon
         /// </summary>        
-        [HttpGet("apply-coupon/{couponCode}")]
-        public async Task<BaseAPIResponse<ApplyCouponResult>> ApplyCoupon(string couponCode)
+        [HttpPost("apply-coupon")]
+        public async Task<BaseAPIResponse<ApplyCouponResult>> ApplyCoupon(ApplyCouponRequestModel model)
         {
             var response = new BaseAPIResponse<ApplyCouponResult>();
             try
             {
 
-                var isCouponApplied = await _couponService.ApplyCoupon(couponCode);
+                var isCouponApplied = await _couponService.ApplyCoupon(model);
                 response.Data = isCouponApplied;
                 if (isCouponApplied.StatusCode <= 0)
                 {
@@ -180,6 +181,37 @@ namespace GeckoAPI.CustomerControllers
                     response.Message = isCouponApplied.Message;
                 }
                 
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Remove Coupon
+        /// </summary>        
+        [HttpPost("remove-coupon/{CartSessionId}")]
+        public async Task<BaseAPIResponse<long>> RemoveCoupon(string CartSessionId)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+
+                var isCouponRemoved = await _couponService.RemoveCoupon(CartSessionId);
+                if (isCouponRemoved <= 0)
+                {
+                    response.Success = false;
+                    response.Message = "Cart not found or already checked out";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Message = "Coupon removed successfully";
+                }
+
             }
             catch (Exception ex)
             {

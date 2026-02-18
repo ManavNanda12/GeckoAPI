@@ -69,6 +69,7 @@ namespace GeckoAPI.Controllers
                     ProductDescription = c.ProductDescription,
                     DiscountAmount = c.DiscountAmount,
                     PaymentStatus = c.PaymentStatus,
+                    CouponCode = c.CouponCode,
                     PaymentMethod = c.PaymentMethod,
                     Id = c.Id,
                     Quantity = c.Quantity,
