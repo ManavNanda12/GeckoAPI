@@ -137,11 +137,11 @@ namespace GeckoAPI.CustomerControllers
                 var result = await _customerService.SaveCustomer(model);
                 response.Success = true;
 
-                if (result == 0)
+                if (result == 0 || model.CustomerId > 0)
                 {
                     response.Message = "User updated successfully.";
                 }
-                else if (result > 0)
+                else if (result > 0 && model.CustomerId == 0)
                 {
                     string filePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "CustomerPasswordTemplate.html");
 
