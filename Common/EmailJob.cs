@@ -6,12 +6,13 @@ namespace GeckoAPI.Common
     public class EmailJob
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConnectionMultiplexer _redis;
+        //private readonly IConnectionMultiplexer _redis;
 
-        public EmailJob(IHttpClientFactory httpClientFactory, IConnectionMultiplexer redis)
+        //, IConnectionMultiplexer redis
+        public EmailJob(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _redis = redis;
+            //_redis = redis;
         }
 
         public async Task SendWelcomeEmailsViaApi()
@@ -34,24 +35,24 @@ namespace GeckoAPI.Common
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task ClearAllCache()
-        {
-            var endpoints = _redis.GetEndPoints();
-            var db = _redis.GetDatabase();
+        //public async Task ClearAllCache()
+        //{
+        //    var endpoints = _redis.GetEndPoints();
+        //    var db = _redis.GetDatabase();
 
-            foreach (var endpoint in endpoints)
-            {
-                var server = _redis.GetServer(endpoint);
+        //    foreach (var endpoint in endpoints)
+        //    {
+        //        var server = _redis.GetServer(endpoint);
 
-                var keys = server.Keys(pattern: "products_*");
+        //        var keys = server.Keys(pattern: "products_*");
 
-                foreach (var key in keys)
-                {
-                    await db.KeyDeleteAsync(key);
-                }
-            }
+        //        foreach (var key in keys)
+        //        {
+        //            await db.KeyDeleteAsync(key);
+        //        }
+        //    }
 
-            Console.WriteLine("Only product cache cleared at " + DateTime.Now);
-        }
+        //    Console.WriteLine("Only product cache cleared at " + DateTime.Now);
+        //}
     }
 }

@@ -65,6 +65,10 @@ namespace GeckoAPI.Controllers
             try
             {
                 // Fetch all users using the service
+                if(model.CustomerId == 0)
+                {
+                    model.GeneratedPassword = PasswordGenerator.GenerateRandomPassword();
+                }
                 var result = await _customerService.SaveCustomer(model);
                 response.Success = true;
 
@@ -74,6 +78,24 @@ namespace GeckoAPI.Controllers
                 }
                 else if (result > 0)
                 {
+                    string filePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "CustomerPasswordTemplate.html");
+
+                    // Fix: Use System.IO.File instead of ControllerBase.File
+                    string htmlTemplate = await System.IO.File.ReadAllTextAsync(filePath);
+
+                        string customerName = $"{model.FirstName} {model.LastName}".Trim();
+                        string htmlBody = htmlTemplate
+                                    .Replace("{{CustomerName}}", customerName)
+                                    .Replace("{{MobileNumber}}", model.ContactNumber)
+                                    .Replace("{{Password}}", model.GeneratedPassword)
+                                    .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+
+                    await _emailService.SendCustomerGeneratedPasswordMail(
+                            model.Email,
+                            customerName,
+                            htmlBody
+                    );
                     response.Message = "User added successfully";
                 }
                 else if (result == -1)

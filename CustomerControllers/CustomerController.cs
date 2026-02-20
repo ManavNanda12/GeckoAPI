@@ -18,14 +18,18 @@ namespace GeckoAPI.CustomerControllers
         private readonly ICustomerService _customerService;
         private readonly IJWTService _jwtService;
         private readonly IConfiguration _configuration;
+        private readonly EmailService _emailService;
+        private readonly IWebHostEnvironment _env;
         #endregion
 
         #region Constructor
-        public CustomerController(ICustomerService customerService, IJWTService jwtService, IConfiguration configuration)
+        public CustomerController(ICustomerService customerService, IJWTService jwtService, IConfiguration configuration, EmailService emailService, IWebHostEnvironment env)
         {
             _customerService = customerService;
             _jwtService = jwtService;
             _configuration = configuration;
+            _emailService = emailService;
+            _env = env;
         }
         #endregion
 
@@ -112,6 +116,64 @@ namespace GeckoAPI.CustomerControllers
             {
                 response.Success = false;
                 response.Message = "An unexpected error occurred while logging in.";
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Save Customer
+        /// </summary>        
+        [HttpPost("save-customer")]
+        public async Task<BaseAPIResponse<long>> SaveCustomer(CustomerSaveModel model)
+        {
+            var response = new BaseAPIResponse<long>();
+            try
+            {
+                // Fetch all users using the service
+                if (model.CustomerId == 0)
+                {
+                    model.GeneratedPassword = PasswordGenerator.GenerateRandomPassword();
+                }
+                var result = await _customerService.SaveCustomer(model);
+                response.Success = true;
+
+                if (result == 0)
+                {
+                    response.Message = "User updated successfully.";
+                }
+                else if (result > 0)
+                {
+                    string filePath = Path.Combine(_env.WebRootPath, "EmailTemplates", "CustomerPasswordTemplate.html");
+
+                    // Fix: Use System.IO.File instead of ControllerBase.File
+                    string htmlTemplate = await System.IO.File.ReadAllTextAsync(filePath);
+
+                    string customerName = $"{model.FirstName} {model.LastName}".Trim();
+                    string htmlBody = htmlTemplate
+                                .Replace("{{CustomerName}}", customerName)
+                                .Replace("{{MobileNumber}}", model.ContactNumber)
+                                .Replace("{{Password}}", model.GeneratedPassword)
+                                .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+
+                    await _emailService.SendCustomerGeneratedPasswordMail(
+                            model.Email,
+                            customerName,
+                            htmlBody
+                    );
+                    response.Message = "Your account has been created successfully. You will receive password soon.";
+                }
+                else if (result == -1)
+                {
+                    response.Success = false;
+                    response.Message = "Email is already used";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and set error response
+                response.Success = false;
+                response.Message = $"An error occurred: {ex.Message}";
             }
             return response;
         }

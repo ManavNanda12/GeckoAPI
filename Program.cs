@@ -61,14 +61,14 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost",
-        builder => builder
-            .WithOrigins("http://localhost:4200", "http://localhost:4201")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
-
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -128,21 +128,21 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(
-        builder.Configuration["Redis:ConnectionString"]
-    ));
+//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+//    ConnectionMultiplexer.Connect(
+//        builder.Configuration["Redis:ConnectionString"]
+//    ));
 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     // Enable Swagger UI
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
 });
@@ -153,18 +153,18 @@ RecurringJob.AddOrUpdate<EmailJob>(
     "send-welcome-emails",
     job => job.SendWelcomeEmailsViaApi(),
     "*/15 * * * *");
-RecurringJob.AddOrUpdate<EmailJob>(
-    "clear-cache-memory",
-    job=> job.ClearAllCache(),
-    "0 0 * * *"
-    );
+//RecurringJob.AddOrUpdate<EmailJob>(
+//    "clear-cache-memory",
+//    job=> job.ClearAllCache(),
+//    "0 0 * * *"
+//    );
 RecurringJob.AddOrUpdate<EmailJob>(
     "send-monthly-reports",
     job => job.SendMonthlySalesReportViaApi(),
      "0 2 1 * *");
 
 
-app.UseCors("AllowLocalhost");
+app.UseCors("AllowAll");
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
