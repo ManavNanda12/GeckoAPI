@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using Stripe;
 using System.Text;
 using static GeckoAPI.Common.CommonHelper;
 
@@ -113,6 +114,7 @@ builder.Services.Configure<DbConfig>(
     builder.Configuration.GetSection("ConnectionStrings")
 );
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddRepositories();
 builder.Services.AddServices();
@@ -126,6 +128,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration["Redis:ConnectionString"];
 });
+
 
 
 //builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
