@@ -944,11 +944,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
+      "projectUniqueName": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
       "projectName": "GeckoAPI.Model",
-      "projectPath": "C:\\Projects\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
+      "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
       "packagesPath": "C:\\Users\\Evince\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\GeckoAPI.Model\\obj\\",
+      "outputPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

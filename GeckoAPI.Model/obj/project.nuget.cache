@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "lpr4XChJQLw=",
+  "dgSpecHash": "mdWpd+/dFoA=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
+  "projectFilePath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\GeckoAPI.Model.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Evince\\.nuget\\packages\\azure.ai.openai\\2.0.0\\azure.ai.openai.2.0.0.nupkg.sha512",
     "C:\\Users\\Evince\\.nuget\\packages\\azure.ai.projects\\1.1.0\\azure.ai.projects.1.1.0.nupkg.sha512",

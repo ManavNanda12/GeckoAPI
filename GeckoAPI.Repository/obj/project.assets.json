@@ -1729,11 +1729,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\GeckoAPI.Repository\\GeckoAPI.Repository.csproj",
+      "projectUniqueName": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Repository\\GeckoAPI.Repository.csproj",
       "projectName": "GeckoAPI.Repository",
-      "projectPath": "C:\\Projects\\GeckoAPI.Repository\\GeckoAPI.Repository.csproj",
+      "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Repository\\GeckoAPI.Repository.csproj",
       "packagesPath": "C:\\Users\\Evince\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\GeckoAPI.Repository\\obj\\",
+      "outputPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Repository\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1755,11 +1755,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {
-              "projectPath": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj"
+            "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {
+              "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj"
             },
-            "C:\\Projects\\GeckoAPI.Model\\GeckoAPI.Model.csproj": {
-              "projectPath": "C:\\Projects\\GeckoAPI.Model\\GeckoAPI.Model.csproj"
+            "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\GeckoAPI.Model.csproj": {
+              "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Model\\GeckoAPI.Model.csproj"
             }
           }
         }

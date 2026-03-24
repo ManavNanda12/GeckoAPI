@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "54en6RzymO8=",
+  "dgSpecHash": "hA3CHj6KH4k=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
+  "projectFilePath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Evince\\.nuget\\packages\\azure.ai.openai\\2.0.0\\azure.ai.openai.2.0.0.nupkg.sha512",
     "C:\\Users\\Evince\\.nuget\\packages\\azure.ai.projects\\1.1.0\\azure.ai.projects.1.1.0.nupkg.sha512",
@@ -38,9 +38,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "Package 'MimeKit' 4.13.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-g7hc-96xr-gvvx",
-      "projectPath": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
+      "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
+      "filePath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
       "libraryId": "MimeKit",
       "targetGraphs": [
         "net9.0"

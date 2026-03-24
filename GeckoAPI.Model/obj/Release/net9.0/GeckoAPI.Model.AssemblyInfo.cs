@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GeckoAPI.Model")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3ed7785d5242603517d7906f6ea95dae7eae3452")]
 [assembly: System.Reflection.AssemblyProductAttribute("GeckoAPI.Model")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GeckoAPI.Model")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

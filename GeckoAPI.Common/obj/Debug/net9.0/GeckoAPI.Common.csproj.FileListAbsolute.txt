@@ -10,3 +10,16 @@ C:\Projects\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.dll
 C:\Projects\GeckoAPI.Common\obj\Debug\net9.0\refint\GeckoAPI.Common.dll
 C:\Projects\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.pdb
 C:\Projects\GeckoAPI.Common\obj\Debug\net9.0\ref\GeckoAPI.Common.dll
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\bin\Debug\net9.0\GeckoAPI.Common.deps.json
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\bin\Debug\net9.0\GeckoAPI.Common.dll
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\bin\Debug\net9.0\GeckoAPI.Common.pdb
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.csproj.AssemblyReference.cache
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.AssemblyInfoInputs.cache
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.AssemblyInfo.cs
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.csproj.CoreCompileInputs.cache
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.sourcelink.json
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.dll
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\refint\GeckoAPI.Common.dll
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\GeckoAPI.Common.pdb
+C:\Projects\GeckoAPI-Solution\GeckoAPI.Common\obj\Debug\net9.0\ref\GeckoAPI.Common.dll

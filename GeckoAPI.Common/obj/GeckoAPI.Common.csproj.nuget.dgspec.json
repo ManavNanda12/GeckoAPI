@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {}
+    "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {
+    "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
+        "projectUniqueName": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
         "projectName": "GeckoAPI.Common",
-        "projectPath": "C:\\Projects\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
+        "projectPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\GeckoAPI.Common.csproj",
         "packagesPath": "C:\\Users\\Evince\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\GeckoAPI.Common\\obj\\",
+        "outputPath": "C:\\Projects\\GeckoAPI-Solution\\GeckoAPI.Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
