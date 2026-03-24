@@ -1,0 +1,12 @@
+C:\Projects\GeckoAPI.Model\bin\Debug\net9.0\GeckoAPI.Model.deps.json
+C:\Projects\GeckoAPI.Model\bin\Debug\net9.0\GeckoAPI.Model.dll
+C:\Projects\GeckoAPI.Model\bin\Debug\net9.0\GeckoAPI.Model.pdb
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.csproj.AssemblyReference.cache
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.AssemblyInfoInputs.cache
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.AssemblyInfo.cs
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.csproj.CoreCompileInputs.cache
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.dll
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\refint\GeckoAPI.Model.dll
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\GeckoAPI.Model.pdb
+C:\Projects\GeckoAPI.Model\obj\Debug\net9.0\ref\GeckoAPI.Model.dll
