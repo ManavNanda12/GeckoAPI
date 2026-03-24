@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        h2 {
+            color: #d9534f;
+        }
+
+        p {
+            font-size: 14px;
+            color: #333333;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+        }
+
+        .highlight {
+            background: #f9f2f4;
+            color: #c7254e;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>⚠️ JWT Token Validation Error</h2>
+        <p>Hello Admin,</p>
+        <p>An error occurred during <strong>JWT validation</strong> in the application:</p>
+        <p><strong>Error Type:</strong> <span class="highlight">{{ErrorType}}</span></p>
+        <p><strong>Message:</strong> {{ErrorMessage}}</p>
+        <p><strong>Path:</strong> {{RequestPath}}</p>
+        <p><strong>Occurred At:</strong> {{TimeStamp}}</p>
+        <hr>
+        <p class="footer">This is an automated alert from your ASP.NET Core middleware.</p>
+    </div>
+</body>
+</html>

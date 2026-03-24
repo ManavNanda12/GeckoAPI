@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Welcome to FitLife Gym</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: repeating-linear-gradient( 45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px );
+                animation: shine 20s linear infinite;
+            }
+
+        @keyframes shine {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero {
+            padding: 50px 20px;
+            text-align: center;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff6b35;stop-opacity:0.1"/><stop offset="100%" style="stop-color:%23f7931e;stop-opacity:0.05"/></linearGradient></defs><path d="M0,300 Q300,200 600,280 T1200,250 L1200,400 L0,400 Z" fill="url(%23grad)"/></svg>') no-repeat bottom;
+            background-size: 100% 150px;
+        }
+
+            .hero h1 {
+                font-size: 42px;
+                font-weight: 900;
+                margin-bottom: 15px;
+                background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .hero p {
+                font-size: 18px;
+                color: #b0b0b0;
+                margin-bottom: 30px;
+                line-height: 1.8;
+            }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+            transition: all 0.3s ease;
+        }
+
+            .cta-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 40px rgba(255,107,53,0.4);
+            }
+
+        .features {
+            padding: 40px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            max-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+            .feature-card:hover {
+                background: rgba(255,107,53,0.1);
+                border-color: rgba(255,107,53,0.3);
+                transform: translateY(-5px);
+            }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ff6b35;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: #909090;
+        }
+
+        .benefits {
+            padding: 40px 30px;
+            background: rgba(255,255,255,0.02);
+            margin: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+            .benefits h2 {
+                text-align: center;
+                font-size: 28px;
+                margin-bottom: 30px;
+                color: #ffffff;
+            }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .benefit-item:hover {
+                background: rgba(255,107,53,0.08);
+            }
+
+        .check-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .benefit-item p {
+            color: #d0d0d0;
+            font-size: 15px;
+        }
+
+        .social {
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(255,255,255,0.02);
+        }
+
+            .social h3 {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #ffffff;
+            }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+            .social-icon:hover {
+                background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                border-color: transparent;
+                transform: translateY(-3px);
+            }
+
+        .footer {
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+            .footer p {
+                font-size: 13px;
+                color: #707070;
+                margin-bottom: 10px;
+            }
+
+            .footer a {
+                color: #ff6b35;
+                text-decoration: none;
+            }
+
+        @media only screen and (max-width: 600px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .features {
+                flex-direction: column;
+            }
+
+            .feature-card {
+                max-width: 100%;
+            }
+
+            .benefits {
+                margin: 10px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">💪 GECKO</div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Hi {{CustomerName}} Welcome to the Family!</h1>
+            <p>You've just taken the first step towards transforming your body and mind. We're thrilled to have you join our community of fitness enthusiasts!</p>
+            <a href="#" class="cta-button">Start Your Journey</a>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🏋️</div>
+                <h3>Premium Equipment</h3>
+                <p>State-of-the-art machines</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍🏫</div>
+                <h3>Expert Trainers</h3>
+                <p>Certified professionals</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile App</h3>
+                <p>Track your progress</p>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="benefits">
+            <h2>What You'll Get</h2>
+            <div class="benefit-item">
+                <div class="check-icon">✓</div>
+                <p><strong>24/7 Gym Access</strong> - Work out on your schedule, any time day or night</p>
+            </div>
+            <div class="benefit-item">
+                <div class="check-icon">✓</div>
+                <p><strong>Free Personal Training Session</strong> - Get started with expert guidance</p>
+            </div>
+            <div class="benefit-item">
+                <div class="check-icon">✓</div>
+                <p><strong>Nutrition Plans</strong> - Customized meal plans to complement your workouts</p>
+            </div>
+            <div class="benefit-item">
+                <div class="check-icon">✓</div>
+                <p><strong>Group Classes</strong> - Unlimited access to yoga, spinning, HIIT and more</p>
+            </div>
+            <div class="benefit-item">
+                <div class="check-icon">✓</div>
+                <p><strong>Community Support</strong> - Join a motivated community that lifts each other up</p>
+            </div>
+        </div>
+
+        <!-- Social -->
+        <div class="social">
+            <h3>Follow Us for Daily Motivation</h3>
+            <div class="social-links">
+                <a href="#" class="social-icon">📘</a>
+                <a href="#" class="social-icon">📷</a>
+                <a href="#" class="social-icon">🐦</a>
+                <a href="#" class="social-icon">▶️</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Gecko Gym</strong></p>
+            <p>123 Fitness Street, Muscle City, MC 12345</p>
+            <p>📧 <a href="mailto:hello@fitlifegym.com">hello@fitlifegym.com</a> | 📞 (555) 123-4567</p>
+            <p style="margin-top: 20px;">
+                <a href="#">Unsubscribe</a> | <a href="#">Update Preferences</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

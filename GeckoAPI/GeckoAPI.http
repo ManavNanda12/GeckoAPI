@@ -1,0 +1,6 @@
+@GeckoAPI_HostAddress = http://localhost:5233
+
+GET {{GeckoAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

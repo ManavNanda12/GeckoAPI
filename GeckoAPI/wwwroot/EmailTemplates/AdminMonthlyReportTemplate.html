@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Monthly Sales Report - Gecko Gym</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table { border-collapse: collapse; border-spacing: 0; }
+        .header-table { background-color: #ff6b35 !important; }
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif;">
+
+    <!-- Main Container -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+
+                <!-- Email Container -->
+                <table role="presentation" width="650" cellpadding="0" cellspacing="0" border="0" style="max-width: 650px; background-color: #ffffff; margin: 0 auto;">
+
+                    <!-- Header -->
+                    <tr>
+                        <td class="header-table" bgcolor="#ff6b35" style="background-color: #ff6b35; padding: 40px 20px; text-align: center;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <div style="font-size: 32px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px;">
+                                            💪 GECKO
+                                        </div>
+                                        <div style="color: #ffffff; font-size: 16px; opacity: 0.95;">
+                                            Monthly Performance Report
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Hero Section -->
+                    <tr>
+                        <td bgcolor="#f9f9f9" style="background-color: #f9f9f9; padding: 40px 30px; text-align: center; border-bottom: 3px solid #ff6b35;">
+                            <h1 style="font-size: 32px; font-weight: 800; margin: 0 0 10px 0; color: #1a1a1a;">Your Monthly Sales Report</h1>
+                            <div style="font-size: 18px; color: #ff6b35; font-weight: 600; margin-bottom: 15px;">{{MonthName}} {{Year}}</div>
+                            <p style="font-size: 15px; color: #666666; margin: 0; line-height: 1.6;">Here's a comprehensive overview of this month's performance, top-selling products, and sales trends.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Sales Statistics -->
+                    <tr>
+                        <td style="padding: 40px 30px; background-color: #ffffff;">
+
+                            <!-- Section Title -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 25px;">
+                                <tr>
+                                    <td>
+                                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td bgcolor="#ff6b35" style="background-color: #ff6b35; width: 4px; height: 28px; border-radius: 2px;"></td>
+                                                <td style="padding-left: 10px; font-size: 24px; font-weight: 700; color: #1a1a1a;">Monthly Overview</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Stats Grid -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px;">
+                                <tr>
+                                    <td width="48%" valign="top">
+                                        <!-- This Month Card -->
+                                        <table role="presentation" width="100%" cellpadding="20" cellspacing="0" border="0" bgcolor="#f8f9fa" style="background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px;">
+                                            <tr>
+                                                <td align="center">
+                                                    <div style="font-size: 13px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">THIS MONTH SALES</div>
+                                                    <div style="font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px;">₹{{CurrentMonthSales}}</div>
+                                                    <table role="presentation" cellpadding="4" cellspacing="0" border="0" bgcolor="{{SalesChangeBgColor}}" style="background-color: {{SalesChangeBgColor}}; border-radius: 20px; margin: 0 auto;">
+                                                        <tr>
+                                                            <td align="center">
+                                                                <span style="font-size: 14px; font-weight: 600; color: {{SalesChangeColor}};">{{SalesChangePercent}}%</span>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="4%"></td>
+                                    <td width="48%" valign="top">
+                                        <!-- Last Month Card -->
+                                        <table role="presentation" width="100%" cellpadding="20" cellspacing="0" border="0" bgcolor="#f8f9fa" style="background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px;">
+                                            <tr>
+                                                <td align="center">
+                                                    <div style="font-size: 13px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">LAST MONTH SALES</div>
+                                                    <div style="font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px;">₹{{LastMonthSales}}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Chart Container -->
+                            <table role="presentation" width="100%" cellpadding="25" cellspacing="0" border="0" bgcolor="#f8f9fa" style="background-color: #f8f9fa; border-radius: 12px; margin-bottom: 20px;">
+                                <tr>
+                                    <td>
+                                        <div style="font-size: 16px; font-weight: 700; color: #495057; margin-bottom: 20px;">Sales Comparison: {{CurrentMonthName}} vs {{LastMonthName}}</div>
+
+                                        <!-- Chart Bars -->
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <!-- Current Month Bar -->
+                                                <td width="48%" align="center" valign="bottom" style="padding-bottom: 10px;">
+                                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="height: 200px;">
+                                                        <tr>
+                                                            <td valign="bottom" align="center">
+                                                                <div style="font-size: 11px; font-weight: 700; color: #495057; margin-bottom: 5px;">₹{{CurrentMonthSales}}</div>
+                                                                <table role="presentation" width="80" cellpadding="0" cellspacing="0" border="0" bgcolor="#ff6b35" style="background-color: #ff6b35; height: {{CurrentMonthBarHeight}}px; max-height: 180px; border-radius: 6px 6px 0 0; margin: 0 auto;">
+                                                                    <tr><td></td></tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-top: 10px;">{{CurrentMonthName}}</div>
+                                                </td>
+
+                                                <td width="4%"></td>
+
+                                                <!-- Last Month Bar -->
+                                                <td width="48%" align="center" valign="bottom" style="padding-bottom: 10px;">
+                                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="height: 200px;">
+                                                        <tr>
+                                                            <td valign="bottom" align="center">
+                                                                <div style="font-size: 11px; font-weight: 700; color: #495057; margin-bottom: 5px;">₹{{LastMonthSales}}</div>
+                                                                <table role="presentation" width="80" cellpadding="0" cellspacing="0" border="0" bgcolor="#6c757d" style="background-color: #6c757d; height: {{LastMonthBarHeight}}px; max-height: 180px; border-radius: 6px 6px 0 0; margin: 0 auto;">
+                                                                    <tr><td></td></tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-top: 10px;">{{LastMonthName}}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Legend -->
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                                            <tr>
+                                                <td align="center">
+                                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                                        <tr>
+                                                            <td>
+                                                                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                                                    <tr>
+                                                                        <td bgcolor="#ff6b35" style="background-color: #ff6b35; width: 16px; height: 16px; border-radius: 3px;"></td>
+                                                                        <td style="padding-left: 8px; padding-right: 25px; font-size: 13px; color: #495057;">{{CurrentMonthName}} {{Year}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td>
+                                                                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                                                    <tr>
+                                                                        <td bgcolor="#6c757d" style="background-color: #6c757d; width: 16px; height: 16px; border-radius: 3px;"></td>
+                                                                        <td style="padding-left: 8px; font-size: 13px; color: #495057;">{{LastMonthName}} {{LastMonthYear}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Top Products Section -->
+                    <tr>
+                        <td bgcolor="#f8f9fa" style="background-color: #f8f9fa; padding: 40px 30px;">
+
+                            <!-- Section Title -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 25px;">
+                                <tr>
+                                    <td>
+                                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td bgcolor="#ff6b35" style="background-color: #ff6b35; width: 4px; height: 28px; border-radius: 2px;"></td>
+                                                <td style="padding-left: 10px; font-size: 24px; font-weight: 700; color: #1a1a1a;">Top 10 Best-Selling Products</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Products List -->
+                            {{ProductsList}}
+
+                        </td>
+                    </tr>
+
+                    <!-- CTA Section -->
+                    <tr>
+                        <td bgcolor="#1a1a1a" style="background-color: #1a1a1a; padding: 40px 30px; text-align: center;">
+                            <h3 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0 0 15px 0;">Want to See More Details?</h3>
+                            <p style="color: #b0b0b0; margin: 0 0 25px 0; font-size: 15px;">Access your full analytics dashboard for deeper insights and trends.</p>
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td bgcolor="#ff6b35" style="background-color: #ff6b35; border-radius: 50px; padding: 16px 40px;">
+                                        <a href="{{DashboardUrl}}" style="color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; display: block;">VIEW DASHBOARD</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td bgcolor="#f8f9fa" style="background-color: #f8f9fa; padding: 30px 30px; text-align: center; border-top: 1px solid #dee2e6;">
+                            <p style="font-size: 13px; color: #6c757d; margin: 0 0 8px 0;"><strong>Gecko Gym</strong></p>
+                            <p style="font-size: 13px; color: #6c757d; margin: 0 0 8px 0;">123 Fitness Street, Muscle City, MC 12345</p>
+                            <p style="font-size: 13px; color: #6c757d; margin: 0 0 20px 0;">
+                                📧 <a href="mailto:hello@geckogym.com" style="color: #ff6b35; text-decoration: none; font-weight: 600;">hello@geckogym.com</a> |
+                                📞 (555) 123-4567
+                            </p>
+                            <p style="font-size: 12px; color: #adb5bd; margin: 0;">
+                                You're receiving this because you're a Gecko Gym administrator.<br>
+                                This is an automated monthly report.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                <!-- End Email Container -->
+
+            </td>
+        </tr>
+    </table>
+    <!-- End Main Container -->
+
+</body>
+</html>

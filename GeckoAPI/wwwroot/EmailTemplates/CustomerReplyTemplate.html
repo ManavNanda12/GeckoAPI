@@ -1,0 +1,381 @@
+﻿<!-- ========================================
+     TEMPLATE 3: Customer Reply Email
+     File: CustomerReplyTemplate.html
+     ======================================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response to Your Inquiry - FitLife Gym</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .response-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        h1 {
+            font-size: 30px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #b0b0b0;
+            font-size: 15px;
+            margin-bottom: 35px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #ff6b35;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .reference-box {
+            background: rgba(255, 107, 53, 0.08);
+            border-left: 4px solid #ff6b35;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+            .reference-box h3 {
+                color: #ff6b35;
+                font-size: 14px;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .reference-box p {
+                color: #b0b0b0;
+                font-size: 14px;
+                margin: 5px 0;
+            }
+
+            .reference-box .original-message {
+                background: rgba(0, 0, 0, 0.3);
+                padding: 15px;
+                border-radius: 6px;
+                margin-top: 12px;
+                font-style: italic;
+                color: #909090;
+                font-size: 13px;
+                border-left: 3px solid rgba(255, 107, 53, 0.3);
+            }
+
+        .reply-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+            .reply-content h2 {
+                color: #ffffff;
+                font-size: 20px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+            }
+
+                .reply-content h2::before {
+                    content: '💬';
+                    margin-right: 10px;
+                    font-size: 24px;
+                }
+
+        .reply-message {
+            color: #d0d0d0;
+            font-size: 16px;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+            margin: 30px 0;
+        }
+
+        .signature {
+            margin-top: 35px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+            .signature p {
+                color: #e0e0e0;
+                font-size: 15px;
+                margin: 8px 0;
+            }
+
+            .signature .name {
+                font-weight: 700;
+                color: #ff6b35;
+                font-size: 16px;
+            }
+
+            .signature .title {
+                color: #b0b0b0;
+                font-size: 14px;
+                font-style: italic;
+            }
+
+        .cta-section {
+            text-align: center;
+            margin: 35px 0;
+            padding: 30px;
+            background: rgba(255, 107, 53, 0.05);
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 107, 53, 0.3);
+        }
+
+            .cta-section h3 {
+                color: #ffffff;
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .cta-section p {
+                color: #b0b0b0;
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .contact-info {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+            .contact-info h3 {
+                color: #ff6b35;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .contact-info p {
+                color: #b0b0b0;
+                font-size: 14px;
+                margin: 8px 0;
+            }
+
+            .contact-info a {
+                color: #ff6b35;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+            .footer p {
+                font-size: 13px;
+                color: #707070;
+                margin: 5px 0;
+            }
+
+            .footer a {
+                color: #ff6b35;
+                text-decoration: none;
+            }
+
+        .social-links {
+            margin-top: 15px;
+        }
+
+            .social-links a {
+                display: inline-block;
+                width: 35px;
+                height: 35px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 50%;
+                margin: 0 5px;
+                line-height: 35px;
+                text-decoration: none;
+                font-size: 16px;
+            }
+
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .reply-content {
+                padding: 20px;
+            }
+
+            .signature {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">💪 FITLIFE</div>
+            <div class="response-badge">Response to Your Inquiry</div>
+        </div>
+
+        <div class="content">
+            <div class="icon-circle">✉️</div>
+
+            <h1>We've Got Your Answer!</h1>
+            <p class="subtitle">Thank you for your patience while we reviewed your inquiry</p>
+
+            <p class="greeting">Hi {{CustomerName}},</p>
+
+            <div class="reference-box">
+                <h3>📋 Your Original Inquiry</h3>
+                <p><strong>Subject:</strong> {{OriginalSubject}}</p>
+                <p><strong>Date:</strong> {{OriginalDate}}</p>
+                <div class="original-message">
+                    "{{OriginalMessage}}"
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="reply-content">
+                <h2>Our Response</h2>
+                <div class="reply-message">{{ReplyMessage}}</div>
+            </div>
+
+            <div class="signature">
+                <p class="name">{{AdminName}}</p>
+                <p class="title">{{AdminTitle}}</p>
+                <p style="margin-top: 15px; color: #909090; font-size: 13px;">
+                    FitLife Gym<br>
+                    📧 {{AdminEmail}} | 📞 {{AdminPhone}}
+                </p>
+            </div>
+
+            <div class="cta-section">
+                <h3>Need More Help?</h3>
+                <p>If you have any follow-up questions or need further assistance, we're here for you!</p>
+                <a href="mailto:support@fitlifegym.com" class="cta-button">Reply to This Email</a>
+            </div>
+
+            <div class="contact-info">
+                <h3>📞 Contact Us Anytime</h3>
+                <p><strong>Email:</strong> <a href="mailto:support@fitlifegym.com">support@fitlifegym.com</a></p>
+                <p><strong>Phone:</strong> <a href="tel:+15551234567">(555) 123-4567</a></p>
+                <p><strong>Hours:</strong> Monday - Friday, 6:00 AM - 10:00 PM</p>
+                <p><strong>Address:</strong> 123 Fitness Street, Muscle City, MC 12345</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>FitLife Gym</strong></p>
+            <p>Transforming Lives Through Fitness</p>
+
+            <div class="social-links">
+                <a href="#" title="Facebook">📘</a>
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="Twitter">🐦</a>
+                <a href="#" title="YouTube">▶️</a>
+            </div>
+
+            <p style="margin-top: 20px;">
+                <a href="#">Unsubscribe</a> | <a href="#">Update Preferences</a>
+            </p>
+            <p style="margin-top: 10px; color: #505050;">
+                &copy; {{Year}} FitLife Gym. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
