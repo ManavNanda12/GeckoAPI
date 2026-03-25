@@ -26,24 +26,28 @@ namespace GeckoAPI.Repository.order
         public async Task<CheckoutOrderServiceResult> CheckoutOrder(CheckoutOrderRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", model.CustomerId);
-            param.Add("@CartSessionId", model.CartSessionId);
-            param.Add("@BillingAddress", model.BillingAddress);
-            param.Add("@ShippingAddress", model.ShippingAddress);
-            param.Add("@ShippingSameAsBilling", model.ShippingSameAsBilling);
-            param.Add("@PaymentMethod", model.PaymentMethod);
-            param.Add("@OrderNotes", model.OrderNotes);
-            param.Add("@PaymentIntentId", model.PaymentIntentId);
-            param.Add("@StripePaymentStatus", model.StripePaymentStatus);
+            param.Add("p_cartsessionid", model.CartSessionId);
+            param.Add("p_customerid", Convert.ToInt32(model.CustomerId), DbType.Int32);
+            param.Add("p_billingaddress", model.BillingAddress);
+            param.Add("p_shippingaddress", model.ShippingAddress);
+            param.Add("p_shippingsameasbilling", model.ShippingSameAsBilling, DbType.Boolean);
+            param.Add("p_paymentmethod", model.PaymentMethod);
+            param.Add("p_ordernotes", model.OrderNotes);
+            param.Add("p_paymentintentid", model.PaymentIntentId);
+            param.Add("p_stripepaymentstatus", model.StripePaymentStatus);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.CheckoutCart,
+                true,
+                "@p_cartsessionid, @p_customerid, @p_billingaddress, @p_shippingaddress, @p_shippingsameasbilling, @p_paymentmethod, @p_ordernotes, @p_paymentintentid, @p_stripepaymentstatus"
+            );
 
             var response = await QueryMultipleAsync<CheckoutOrderServiceResult>(
-                StoredProcedures.CheckoutCart,
+                query,
                 param,
                 async (multi) =>
                 {
-                    // Read ALL rows from the first (and only) result set
                     var allResults = (await multi.ReadAsync<CheckoutResultRow>()).ToList();
-
                     if (!allResults.Any())
                     {
                         return new CheckoutOrderServiceResult
@@ -62,7 +66,6 @@ namespace GeckoAPI.Repository.order
 
                     if (result.Result == -2)
                     {
-                        // Map to out-of-stock items (all rows have the product details)
                         result.OutOfStockItems = allResults.Select(r => new OutOfStockItem
                         {
                             ProductId = r.ProductId ?? 0,
@@ -77,42 +80,59 @@ namespace GeckoAPI.Repository.order
                         result.OrderNumber = firstRow.OrderNumber;
                         result.Total = firstRow.Total ?? 0;
                     }
-
                     return result;
                 }
             );
-
             return response.Data;
         }
-
-
 
         public Task<List<OrderDetailResponse>> GetOrderDetail(long OrderId)
         {
             var param = new DynamicParameters();
-            param.Add("@OrderId", OrderId);
-            var response = Query<OrderDetailResponse>(StoredProcedures.GetOrderDetail, param);
-            return Task.FromResult(response.Data.ToList());
+            param.Add("@OrderId", OrderId, DbType.Int32);
 
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetOrderDetail,
+                true,
+                "@OrderId"
+            );
+
+            var response = Query<OrderDetailResponse>(query, param);
+            return Task.FromResult(response.Data.ToList());
         }
 
         public Task<List<OrderListResponse>> GetOrderList(long CustomerId)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", CustomerId);
-            var response = Query<OrderListResponse>(StoredProcedures.GetOrderList, param);
+            param.Add("@CustomerId", CustomerId, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetOrderList,
+                true,
+                "@CustomerId"
+            );
+
+            var response = Query<OrderListResponse>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
+
         public Task<List<AdminOrderList>> GetAdminOrderList(CommonListRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@PageNumber", model.PageNumber);
-            param.Add("@PageSize", model.PageSize);
+            param.Add("@PageNumber", model.PageNumber, DbType.Int32);
+            param.Add("@PageSize", model.PageSize, DbType.Int32);
             param.Add("@SearchTerm", model.SearchTerm);
             param.Add("@SortColumn", model.SortColumn);
             param.Add("@SortDirection", model.SortDirection);
-            var orders = Query<AdminOrderList>(StoredProcedures.GetAdminOrderList, param);
-            return Task.FromResult(orders.Data.ToList());
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetAdminOrderList,
+                true,
+                "@PageNumber,@PageSize,@SearchTerm,@SortColumn,@SortDirection"
+            );
+
+            var response = Query<AdminOrderList>(query, param);
+            return Task.FromResult(response.Data.ToList());
         }
         #endregion
     }

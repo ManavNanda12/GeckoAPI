@@ -6,3 +6,4 @@ bin/
 obj/
 
 *.user
+/GeckoAPI/Properties/PublishProfiles/geckoapi-manav - Web Deploy.pubxml

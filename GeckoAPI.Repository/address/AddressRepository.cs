@@ -3,11 +3,7 @@ using DemoWebAPI.Common;
 using DemoWebAPI.model.Models;
 using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace GeckoAPI.Repository.address
 {
@@ -23,21 +19,31 @@ namespace GeckoAPI.Repository.address
         {
             var param = new DynamicParameters();
             param.Add("@CustomerId", customerId);
-            var data = Query<AddressListResponseModel>(StoredProcedures.GetAddressList, param);
+            var query = GetPgFunctionQuery(
+               StoredProcedures.GetAddressList,
+               true,
+               "@CustomerId"
+           );
+            var data = Query<AddressListResponseModel>(query, param);
             return Task.FromResult(data.Data.ToList());
         }
         public Task<long> SaveAddress(Address model)
         {
             var param = new DynamicParameters();
-            param.Add("@AddressId", model.AddressId);
+            param.Add("@AddressId", model.AddressId, DbType.Int64);
+            param.Add("@CustomerId", model.CustomerId, DbType.Int64);
             param.Add("@AddressName", model.AddressName);
             param.Add("@FullAddress", model.FullAddress);
-            param.Add("@CustomerId", model.CustomerId);
-            param.Add("@CountryId", model.CountryId);
-            param.Add("@StateId", model.StateId);
-            param.Add("@CityId", model.CityId);
-            param.Add("@UpdatedBy", model.UpdatedBy);
-            var response = Execute(StoredProcedures.SaveAddress, param);
+            param.Add("@CountryId", model.CountryId, DbType.Int64);
+            param.Add("@StateId", model.StateId, DbType.Int64);
+            param.Add("@CityId", model.CityId, DbType.Int64);
+            param.Add("@UpdatedBy", model.UpdatedBy, DbType.Int64);
+            var query = GetPgFunctionQuery(
+              StoredProcedures.SaveAddress,
+              false,
+              "@AddressId,@CustomerId,@AddressName,@FullAddress,@CountryId,@StateId,@CityId,@UpdatedBy"
+          );
+            var response = Execute(query, param);
             return Task.FromResult((long)response.Data);
         }
 
@@ -45,7 +51,12 @@ namespace GeckoAPI.Repository.address
         {
             var param = new DynamicParameters();
             param.Add("@AddressId", addressId);
-            var response = Execute(StoredProcedures.MakeCustomerAddressDefault, param);
+            var query = GetPgFunctionQuery(
+              StoredProcedures.MakeCustomerAddressDefault,
+              false,
+              "@AddressId"
+          );
+            var response = Execute(query, param);
             return Task.FromResult((long)response.Data);
 
         }
@@ -54,7 +65,12 @@ namespace GeckoAPI.Repository.address
         {
             var param = new DynamicParameters();
             param.Add("@AddressId", addressId);
-            var response = Execute(StoredProcedures.DeleteAddress, param);
+            var query = GetPgFunctionQuery(
+              StoredProcedures.DeleteAddress,
+              false,
+              "@AddressId"
+          );
+            var response = Execute(query, param);
             return Task.FromResult((long)response.Data);
         }
         #endregion

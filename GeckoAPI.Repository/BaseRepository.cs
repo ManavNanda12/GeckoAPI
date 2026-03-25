@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using DemoWebAPI.model.Models;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 public abstract class BaseRepository
@@ -18,11 +18,14 @@ public abstract class BaseRepository
 
     protected IDbConnection CreateConnection()
     {
-        return new SqlConnection(_connectionString);
+        return new NpgsqlConnection(_connectionString);
     }
 
     // 🔹 Query (Multiple Rows)
-    protected BaseAPIResponse<IEnumerable<T>> Query<T>(string sql, object param = null, CommandType commandType = CommandType.StoredProcedure)
+    protected BaseAPIResponse<IEnumerable<T>> Query<T>(
+        string sql,
+        object param = null,
+        CommandType commandType = CommandType.Text) // ✅ Changed
     {
         try
         {
@@ -39,7 +42,10 @@ public abstract class BaseRepository
     }
 
     // 🔹 Query Single (First Row)
-    protected BaseAPIResponse<T> QueryFirstOrDefault<T>(string sql, object param = null, CommandType commandType = CommandType.StoredProcedure)
+    protected BaseAPIResponse<T> QueryFirstOrDefault<T>(
+        string sql,
+        object param = null,
+        CommandType commandType = CommandType.Text) // ✅ Changed
     {
         try
         {
@@ -56,15 +62,16 @@ public abstract class BaseRepository
     }
 
     // 🔹 Execute (Insert/Update/Delete)
-    protected BaseAPIResponse<long> Execute(string sql, object param = null, CommandType commandType = CommandType.StoredProcedure)
+    protected BaseAPIResponse<long> Execute(
+        string sql,
+        object param = null,
+        CommandType commandType = CommandType.Text) // ✅ Changed
     {
         try
         {
             using (var connection = CreateConnection())
             {
-                // Get the first column of the first row (your SELECT result)
                 var result = connection.ExecuteScalar<long>(sql, param, commandType: commandType);
-
                 return new BaseAPIResponse<long>(true, "Execution completed successfully.", result);
             }
         }
@@ -74,12 +81,12 @@ public abstract class BaseRepository
         }
     }
 
-    // 🔹 QueryMultiple (Multiple Result Sets) - NEW
+    // 🔹 QueryMultiple (Multiple Result Sets)
     protected async Task<BaseAPIResponse<T>> QueryMultipleAsync<T>(
         string sql,
         object param,
         Func<SqlMapper.GridReader, Task<T>> map,
-        CommandType commandType = CommandType.StoredProcedure)
+        CommandType commandType = CommandType.Text) // ✅ Changed
     {
         try
         {
@@ -97,4 +104,14 @@ public abstract class BaseRepository
             return new BaseAPIResponse<T>(false, ex.Message, default);
         }
     }
+
+    #region Helper (IMPORTANT)
+    protected string GetPgFunctionQuery(string functionName, bool isTable = true, string parameters = "")
+    {
+        var fn = functionName.ToLower();
+        return isTable
+       ? $"SELECT * FROM {fn}({parameters})"
+       : $"SELECT {fn}({parameters})";
+    }
+    #endregion
 }

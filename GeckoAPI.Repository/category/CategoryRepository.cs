@@ -5,6 +5,7 @@ using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,44 +22,60 @@ namespace GeckoAPI.Repository.category
         #region Methods
         public Task<List<CategoryListModel>> GetCategoryList()
         {
-            var categories = Query<CategoryListModel>(StoredProcedures.GetCategoryList);
+            var query = GetPgFunctionQuery(
+             StoredProcedures.GetCategoryList,
+             true
+           );
+            var categories = Query<CategoryListModel>(query);
             return Task.FromResult(categories.Data.ToList());
         }
         public Task<int> SaveCategory(SaveCategoryModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CategoryId", model.CategoryId);
+            param.Add("@CategoryId", model.CategoryId, DbType.Int32);
             param.Add("@CategoryName", model.CategoryName);
-            param.Add("@ParentCategoryId", model.ParentCategoryId);
-            param.Add("@CreatedBy", model.CreatedBy);
-            var response = Execute(StoredProcedures.SaveCategory, param);
+            param.Add("@ParentCategoryId", model.ParentCategoryId, DbType.Int32);
+            param.Add("@CreatedBy", model.CreatedBy, DbType.Int32);
+            var query = GetPgFunctionQuery(StoredProcedures.SaveCategory, false, "@CategoryId,@CategoryName,@ParentCategoryId,@CreatedBy");
+            var response = Execute(query, param);
             return Task.FromResult((int)response.Data);
         }
         public Task<int> SaveCategoryImage(SaveCategoryImageModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CategoryID", model.CategoryId);
+            param.Add("@CategoryID", model.CategoryId, DbType.Int32);
             param.Add("@ImageUrl", model.ImageUrl);
             param.Add("@IsPrimary", model.IsPrimary);
-            param.Add("@CreatedBy", model.CreatedBy);
-            var response = Execute(StoredProcedures.SaveCategoryImage, param);
+            param.Add("@CreatedBy", model.CreatedBy, DbType.Int32);
+            var query = GetPgFunctionQuery(StoredProcedures.SaveCategoryImage, false, "@CategoryID,@ImageUrl,@IsPrimary,@CreatedBy");
+            var response = Execute(query, param);
             return Task.FromResult((int)response.Data);
         }
 
         public Task<int> DeleteCategoryImages(CategoryImageDeleteRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@DeletedBy", model.DeletedBy);
+            param.Add("@DeletedBy", model.DeletedBy, DbType.Int32);
             param.Add("@ImageIds", model.ImageIds);
-            var response = Execute(StoredProcedures.DeleteCategoryImage, param);
+            var query = GetPgFunctionQuery(
+                 StoredProcedures.DeleteCategoryImage,
+                 false,
+                 "@DeletedBy,@ImageIds"
+            );
+            var response = Execute(query, param);
             return Task.FromResult((int)response.Data);
         }
 
         public Task<List<CategoryImageListModel>> GetCategoryImages(long CategoryId)
         {
             var param = new DynamicParameters();
-            param.Add("@CategoryId", CategoryId);
-            var response = Query<CategoryImageListModel>(StoredProcedures.GetCategoryImageById, param);
+            param.Add("@CategoryId", CategoryId,DbType.Int32);
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetCategoryImageById,
+                true,
+                "@CategoryId"
+            );
+            var response = Query<CategoryImageListModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
         #endregion

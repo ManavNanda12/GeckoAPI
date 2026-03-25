@@ -18,7 +18,8 @@ namespace GeckoAPI.Repository.general
 
         public Task<List<Country>> GetAllCountries()
         {
-            var response = Query<Country>(StoredProcedures.GetCountryList);
+            var query = GetPgFunctionQuery(StoredProcedures.GetCountryList);
+            var response = Query<Country>(query);
             return Task.FromResult(response.Data.ToList());
         }
 
@@ -26,7 +27,8 @@ namespace GeckoAPI.Repository.general
         {
             var param = new DynamicParameters();
             param.Add("CountryId", countryId);
-            var response = Query<State>(StoredProcedures.GetStateList, param);
+            var query = GetPgFunctionQuery(StoredProcedures.GetStateList, true, "@CountryId");
+            var response = Query<State>(query,param);
             return Task.FromResult(response.Data.ToList());
         }
 
@@ -34,7 +36,8 @@ namespace GeckoAPI.Repository.general
         {
             var param = new DynamicParameters();
             param.Add("StateId", stateId);
-            var response = Query<City>(StoredProcedures.GetCityList, param);
+            var query = GetPgFunctionQuery(StoredProcedures.GetCityList, true, "@StateId");
+            var response = Query<City>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
 

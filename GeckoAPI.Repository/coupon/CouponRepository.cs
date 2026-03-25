@@ -5,6 +5,7 @@ using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,19 +24,26 @@ namespace GeckoAPI.Repository.coupon
         public Task<List<Coupon>> GetCouponList(CommonListRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@PageNumber", model.PageNumber);
-            param.Add("@PageSize", model.PageSize);
+            param.Add("@PageNumber", model.PageNumber,DbType.Int32);
+            param.Add("@PageSize", model.PageSize, DbType.Int32);
             param.Add("@SearchTerm", model.SearchTerm);
             param.Add("@SortColumn", model.SortColumn);
             param.Add("@SortDirection", model.SortDirection);
-            var coupons = Query<Coupon>(StoredProcedures.GetCouponList, param);
-            return Task.FromResult(coupons.Data.ToList());
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetCouponList,
+                true,
+                "@PageNumber,@PageSize,@SearchTerm,@SortColumn,@SortDirection"
+            );
+
+            var response = Query<Coupon>(query, param);
+            return Task.FromResult(response.Data.ToList());
         }
 
         public Task<long> SaveCoupon(Coupon model)
         {
             var param = new DynamicParameters();
-            param.Add("@CouponId", model.CouponId);
+            param.Add("@CouponId", model.CouponId, DbType.Int32);
             param.Add("@CouponCode", model.CouponCode);
             param.Add("@CouponName", model.CouponName);
             param.Add("@Description", model.Description);
@@ -46,8 +54,15 @@ namespace GeckoAPI.Repository.coupon
             param.Add("@MaxUsageCount", model.MaxUsageCount);
             param.Add("@MaxUsagePerUser", model.MaxUsagePerUser);
             param.Add("@IsActive", model.IsActive);
-            param.Add("@CreatedBy", model.CreatedBy);
-            var response = Execute(StoredProcedures.SaveCoupon, param);
+            param.Add("@CreatedBy", model.CreatedBy, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.SaveCoupon,
+                false,
+                "@CouponId,@CouponCode,@CouponName,@Description,@DiscountType,@DiscountValue,@StartDate,@EndDate,@MaxUsageCount,@MaxUsagePerUser,@IsActive,@CreatedBy"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
@@ -56,7 +71,14 @@ namespace GeckoAPI.Repository.coupon
             var param = new DynamicParameters();
             param.Add("@CouponCode", model.CouponCode);
             param.Add("@CartSessionId", model.CartSessionId);
-            var response = QueryFirstOrDefault<ApplyCouponResult>(StoredProcedures.ApplyCoupon, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.ApplyCoupon,
+                true,
+                "@CouponCode,@CartSessionId"
+            );
+
+            var response = QueryFirstOrDefault<ApplyCouponResult>(query, param);
             return Task.FromResult(response.Data);
         }
 
@@ -64,16 +86,30 @@ namespace GeckoAPI.Repository.coupon
         {
             var param = new DynamicParameters();
             param.Add("@CartSessionId", CartSessionId);
-            var response = Execute(StoredProcedures.RemoveCoupon, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.RemoveCoupon,
+                false,
+                "@CartSessionId"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<List<CouponUsedListResponseModel>> GetUsedCouponDetails(long CouponId)
         {
             var param = new DynamicParameters();
-            param.Add("@CouponId", CouponId);
-            var coupons = Query<CouponUsedListResponseModel>(StoredProcedures.GetCouponUsedDetails, param);
-            return Task.FromResult(coupons.Data.ToList());
+            param.Add("@CouponId", CouponId, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetCouponUsedDetails,
+                true,
+                "@CouponId"
+            );
+
+            var response = Query<CouponUsedListResponseModel>(query, param);
+            return Task.FromResult(response.Data.ToList());
         }
         #endregion
     }

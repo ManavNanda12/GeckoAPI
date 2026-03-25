@@ -3,6 +3,7 @@ using DemoWebAPI.Common;
 using DemoWebAPI.model.Models;
 using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
+using System.Data;
 
 namespace GeckoAPI.Repository.plan
 {
@@ -18,16 +19,30 @@ namespace GeckoAPI.Repository.plan
         public Task<List<PlanListResponseModel>> GetPlanList(long customerId)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", customerId);
-            var response = Query<PlanListResponseModel>(StoredProcedures.GetPlans, param);
+            param.Add("@CustomerId", customerId, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetPlans,
+                true,
+                "@CustomerId"
+            );
+
+            var response = Query<PlanListResponseModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
 
         public Task<List<PlanSubscriptionDetailModel>> GetPlanSubscriptionDetails(long PlanId)
         {
             var param = new DynamicParameters();
-            param.Add("@PlanId", PlanId);
-            var response = Query<PlanSubscriptionDetailModel>(StoredProcedures.GetPlanSubscriptonHistory, param);
+            param.Add("@PlanId", PlanId, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetPlanSubscriptonHistory,
+                true,
+                "@PlanId"
+            );
+
+            var response = Query<PlanSubscriptionDetailModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
         #endregion

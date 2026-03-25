@@ -5,6 +5,7 @@ using GeckoAPI.Common;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
@@ -24,21 +25,36 @@ namespace DemoWebAPI.Repository.User
         #region Methods
         public Task<List<UserModel>> GetAllUsers()
         {
-            var users = Query<UserModel>(StoredProcedures.GetAllUsers);
-            return Task.FromResult(users.Data.ToList());
+            var param = new DynamicParameters();
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetAllUsers,
+                true
+            );
+
+            var response = Query<UserModel>(query, param);
+            return Task.FromResult(response.Data.ToList());
         }
 
         public Task<UserModel> GetUserById(long UserId)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", UserId);
-            var user = QueryFirstOrDefault<UserModel>(StoredProcedures.GetUserById,param);
-            return Task.FromResult(user.Data);
+            param.Add("@UserId", UserId,DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetUserById,
+                true,
+                "@UserId"
+            );
+
+            var response = QueryFirstOrDefault<UserModel>(query, param);
+            return Task.FromResult(response.Data);
         }
 
         public Task<long> SaveUser(UserModel model)
         {
             var param = new DynamicParameters();
+
             if (model.UserId == 0)
             {
                 model.Password ??= "Admin@123";
@@ -51,18 +67,33 @@ namespace DemoWebAPI.Repository.User
                 param.Add("@PasswordHash", model.PasswordHash ?? "");
                 param.Add("@PasswordSalt", model.PasswordSalt ?? "");
             }
-            param.Add("@UserId", model.UserId);
+
+            param.Add("@UserId", model.UserId, DbType.Int32);
             param.Add("@UserName", model.UserName);
             param.Add("@UserEmail", model.UserEmail);
-            var response = Execute(StoredProcedures.SaveUser,param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.SaveUser,
+                false,
+                "@PasswordHash,@PasswordSalt,@UserId,@UserName,@UserEmail"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<long> DeleteUser(long UserId)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", UserId);
-            var response = Execute(StoredProcedures.DeleteUser,param);
+            param.Add("@UserId", UserId, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.DeleteUser,
+                false,
+                "@UserId"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
@@ -70,47 +101,82 @@ namespace DemoWebAPI.Repository.User
         {
             var param = new DynamicParameters();
             param.Add("@UserEmail", UserEmail);
-            var response = QueryFirstOrDefault<UserModel>(StoredProcedures.GetUserByEmail, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetUserByEmail,
+                true,
+                "@UserEmail"
+            );
+
+            var response = QueryFirstOrDefault<UserModel>(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<long> AddUserToken(UserJWTModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", model.UserId);
+            param.Add("@UserId", model.UserId, DbType.Int32);
             param.Add("@JwtToken", model.JWTToken);
             param.Add("@JwtCreatedDate", model.JWTCreatedDate);
             param.Add("@JwtExpiryDate", model.JWTExpiryDate);
-            var response = Execute(StoredProcedures.AddUserToken, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.AddUserToken,
+                false,
+                "@UserId,@JwtToken,@JwtCreatedDate,@JwtExpiryDate"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<long> SaveUserLoginAttempt(LoginAttemptSaveModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", model.UserId);
+            param.Add("@UserId", model.UserId, DbType.Int32);
             param.Add("@AttemptTime", model.AttemptTime);
             param.Add("@IsSuccess", model.IsSuccess);
-            var response = Execute(StoredProcedures.SaveLoginAttemptLogs, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.SaveLoginAttemptLogs,
+                false,
+                "@UserId,@AttemptTime,@IsSuccess"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<List<LoginAttemptModel>> GetUserLoginAttempts(long UserId)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", UserId);
+            param.Add("@UserId", UserId, DbType.Int32);
             param.Add("@Time", DateTime.UtcNow);
-            var response = Query<LoginAttemptModel>(StoredProcedures.GetAttemptedLogs, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetAttemptedLogs,
+                true,
+                "@UserId,@Time"
+            );
+
+            var response = Query<LoginAttemptModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
 
         public Task<long> ChangeUserLockStatus(ChangeLockStatusModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@UserId", model.UserId);
+            param.Add("@UserId", model.UserId, DbType.Int32);
             param.Add("@LockStatus", model.IsLocked);
             param.Add("@LockedTime", model.LockedTime);
-            var response = Execute(StoredProcedures.ChangeLockStatus, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.ChangeLockStatus,
+                false,
+                "@UserId,@LockStatus,@LockedTime"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
         #endregion

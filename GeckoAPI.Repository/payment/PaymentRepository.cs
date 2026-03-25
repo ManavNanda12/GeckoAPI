@@ -5,6 +5,7 @@ using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
+using System.Data;
 
 namespace GeckoAPI.Repository.payment
 {
@@ -81,23 +82,38 @@ namespace GeckoAPI.Repository.payment
             param.Add("@CheckoutSessionId", model.CheckoutSessionId);
             param.Add("@ChargeId", model.ChargeId);
             param.Add("@PayloadJson", model.PayloadJson);
-            var response = Execute(StoredProcedures.SaveStripeWebHookEvents, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.SaveStripeWebHookEvents,
+                false,
+                "@StripeEventId,@EventType,@ApiVersion,@PaymentIntentId,@CheckoutSessionId,@ChargeId,@PayloadJson"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
 
         public Task<long> SaveSubscriptionEvent(SaveCustomerSubscriptionRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", model.CustomerId);
+            param.Add("@CustomerId", model.CustomerId,DbType.Int32);
             param.Add("@SubscriptionStatus", model.SubscriptionStatus);
             param.Add("@StripeSubscriptionId", model.StripeSubscriptionId);
-            param.Add("@PlanId", model.PlanId);
+            param.Add("@PlanId", model.PlanId, DbType.Int32);
             param.Add("@CancelAtPeriodEnd", model.CancelAtPeriodEnd);
             param.Add("@CurrentPeriodEnd", model.CurrentPeriodEnd);
             param.Add("@CurrentPeriodStart", model.CurrentPeriodStart);
-            var response = Execute(StoredProcedures.SaveCustomerSubscription, param);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.SaveCustomerSubscription,
+                false,
+                "@CustomerId,@SubscriptionStatus,@StripeSubscriptionId,@PlanId,@CancelAtPeriodEnd,@CurrentPeriodEnd,@CurrentPeriodStart"
+            );
+
+            var response = Execute(query, param);
             return Task.FromResult(response.Data);
         }
+
 
         public async Task<string?> ChangePlanAsync(ChangePlanRequest model)
         {
@@ -173,11 +189,17 @@ namespace GeckoAPI.Repository.payment
         public Task<PlanCheckResponseModel> CheckPlan(PlanCheckRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", model.CustomerId);
-            param.Add("@RequestedPlanId", model.PlanId);
-            var orders = QueryFirstOrDefault<PlanCheckResponseModel>(StoredProcedures.CheckSubscriptionAction, param);
-            return Task.FromResult(orders.Data);
+            param.Add("@CustomerId", model.CustomerId, DbType.Int32);
+            param.Add("@RequestedPlanId", model.PlanId, DbType.Int32);
 
+            var query = GetPgFunctionQuery(
+                StoredProcedures.CheckSubscriptionAction,
+                true,
+                "@CustomerId,@RequestedPlanId"
+            );
+
+            var response = QueryFirstOrDefault<PlanCheckResponseModel>(query, param);
+            return Task.FromResult(response.Data);
         }
 
         #endregion

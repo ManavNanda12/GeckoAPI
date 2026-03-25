@@ -5,6 +5,7 @@ using GeckoAPI.Model.models;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -22,23 +23,44 @@ namespace GeckoAPI.Repository.dashboard
         #region Methods
         public Task<Dashboard> GetDashboardCount()
         {
-            var dashboard = QueryFirstOrDefault<Dashboard>(StoredProcedures.GetDashboardCounts);
-            return Task.FromResult(dashboard.Data);
+            var param = new DynamicParameters();
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetDashboardCounts,
+                true
+            );
+
+            var response = QueryFirstOrDefault<Dashboard>(query, param);
+            return Task.FromResult(response.Data);
         }
 
         public Task<List<MonthlySalesResponseModel>> GetMonthlySalesStats(long year)
         {
             var param = new DynamicParameters();
-            param.Add("@Year", year);
-            var response = Query<MonthlySalesResponseModel>(StoredProcedures.MonhtlySalesAmount, param);
+            param.Add("@Year", year,DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.MonhtlySalesAmount,
+                true,
+                "@Year"
+            );
+
+            var response = Query<MonthlySalesResponseModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
 
         public Task<List<MostOrderedProductsResponseModel>> GetMostOrderedProductStats(long filter)
         {
             var param = new DynamicParameters();
-            param.Add("@Filter", filter);
-            var response = Query<MostOrderedProductsResponseModel>(StoredProcedures.GetMostOrderedProducts, param);
+            param.Add("@Filter", filter, DbType.Int32);
+
+            var query = GetPgFunctionQuery(
+                StoredProcedures.GetMostOrderedProducts,
+                true,
+                "@Filter"
+            );
+
+            var response = Query<MostOrderedProductsResponseModel>(query, param);
             return Task.FromResult(response.Data.ToList());
         }
         #endregion
