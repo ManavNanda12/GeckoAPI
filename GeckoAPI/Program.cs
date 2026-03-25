@@ -6,10 +6,10 @@ using GeckoAPI.Common;
 using GeckoAPI.Model.models;
 using Google.Apis.Auth.OAuth2;
 using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using System.Text;
+using Hangfire.PostgreSql;
 
 
 
@@ -45,15 +45,9 @@ builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection"),
-        new SqlServerStorageOptions
-        {
-            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-            QueuePollInterval = TimeSpan.Zero,
-            UseRecommendedIsolationLevel = true,
-            DisableGlobalLocks = true
-        }));
+    .UsePostgreSqlStorage(options =>
+        options.UseNpgsqlConnection(
+            builder.Configuration.GetConnectionString("HangfireConnection"))));
 
 
 builder.Services.AddAuthorization();
