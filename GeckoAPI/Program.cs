@@ -143,10 +143,19 @@ var app = builder.Build();
 //{
 //});
 
-FirebaseApp.Create(new AppOptions()
+//FirebaseApp.Create(new AppOptions()
+//{
+//    Credential = GoogleCredential.FromFile("geckocustomerportal-firebase-keys.json")
+//});
+
+var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
+if (!string.IsNullOrEmpty(firebaseJson))
 {
-    Credential = GoogleCredential.FromFile("geckocustomerportal-firebase-keys.json")
-});
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromJson(firebaseJson)
+    });
+}
 
 
 // Register recurring job:
