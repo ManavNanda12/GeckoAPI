@@ -39,6 +39,7 @@ namespace GeckoAPI.CustomerControllers
             _customerService = customerService;
             _orderService = orderService;
             _cartService = cartService;
+            _configuration = configuration;
             _apiKey = _configuration.GetValue<string>("ChatBotKeys:GrokKey");
         }
         #endregion
