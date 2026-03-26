@@ -60,7 +60,7 @@ namespace GeckoAPI.Controllers
         /// Save contact us request
         /// </summary>        
         [HttpPost("save-contactus-request")]
-        public async Task<BaseAPIResponse<long>> SaveWishlistItem(ContactUs model)
+        public async Task<BaseAPIResponse<long>> SaveContactRequest(ContactUs model)
         {
             var response = new BaseAPIResponse<long>();
             try

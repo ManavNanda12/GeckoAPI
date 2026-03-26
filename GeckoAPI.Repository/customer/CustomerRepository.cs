@@ -108,7 +108,7 @@ namespace GeckoAPI.Repository.customer
             var query = GetPgFunctionQuery(
                 StoredProcedures.SaveCustomer,
                 false,
-                "@CustomerId, @FirstName, @LastName, @Email, @CountryCode, @ContactNumber, @PasswordHash, @PasswordSalt, @CreatedBy"
+                "@CustomerId, @FirstName, @LastName, @Email, @CountryCode, @ContactNumber, @CreatedBy , @PasswordHash, @PasswordSalt"
             );
 
             var isSaved = Execute(query, param);

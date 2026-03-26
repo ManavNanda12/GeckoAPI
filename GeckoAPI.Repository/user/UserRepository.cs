@@ -75,7 +75,7 @@ namespace DemoWebAPI.Repository.User
             var query = GetPgFunctionQuery(
                 StoredProcedures.SaveUser,
                 false,
-                "@PasswordHash,@PasswordSalt,@UserId,@UserName,@UserEmail"
+                "@UserName,@UserEmail,@UserId,@PasswordSalt,@PasswordHash"
             );
 
             var response = Execute(query, param);
@@ -117,8 +117,8 @@ namespace DemoWebAPI.Repository.User
             var param = new DynamicParameters();
             param.Add("@UserId", model.UserId, DbType.Int32);
             param.Add("@JwtToken", model.JWTToken);
-            param.Add("@JwtCreatedDate", model.JWTCreatedDate);
-            param.Add("@JwtExpiryDate", model.JWTExpiryDate);
+            param.Add("@JwtCreatedDate", DateTime.SpecifyKind(model.JWTCreatedDate, DateTimeKind.Unspecified));
+            param.Add("@JwtExpiryDate", DateTime.SpecifyKind(model.JWTExpiryDate, DateTimeKind.Unspecified));
 
             var query = GetPgFunctionQuery(
                 StoredProcedures.AddUserToken,
@@ -151,7 +151,7 @@ namespace DemoWebAPI.Repository.User
         {
             var param = new DynamicParameters();
             param.Add("@UserId", UserId, DbType.Int32);
-            param.Add("@Time", DateTime.UtcNow);
+            param.Add("@Time", DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified));
 
             var query = GetPgFunctionQuery(
                 StoredProcedures.GetAttemptedLogs,

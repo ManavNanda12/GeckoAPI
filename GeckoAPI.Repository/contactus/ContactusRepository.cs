@@ -35,7 +35,7 @@ namespace GeckoAPI.Repository.contactus
             var query = GetPgFunctionQuery(
                 StoredProcedures.SaveContactRequest,
                 false,
-                "@ContactUsId,@ContactSubject,@CustomerEmail,@CustomerMessage,@AdminMessage,@CustomerName"
+                "@ContactUsId,@CustomerName,@CustomerEmail,@ContactSubject,@CustomerMessage,@AdminMessage"
             );
 
             var response = Execute(query, param);

@@ -137,7 +137,7 @@ namespace DemoWebAPI.Common
         public const string SaveCustomerSubscription = "SP_SaveCustomerSubscription";
         public const string CancelSubscription = "SP_CancelSubscription";
         public const string CheckSubscriptionAction = "SP_CheckSubscriptionAction";
-        public const string GetPlanSubscriptonHistory = "SP_GetPlanSubscriptonHistory";
+        public const string GetPlanSubscriptonHistory = "SP_GetPlanSubscriptionHistory";
         #endregion
     }
 }

@@ -36,7 +36,7 @@ namespace GeckoAPI.Repository.category
             param.Add("@CategoryName", model.CategoryName);
             param.Add("@ParentCategoryId", model.ParentCategoryId, DbType.Int32);
             param.Add("@CreatedBy", model.CreatedBy, DbType.Int32);
-            var query = GetPgFunctionQuery(StoredProcedures.SaveCategory, false, "@CategoryId,@CategoryName,@ParentCategoryId,@CreatedBy");
+            var query = GetPgFunctionQuery(StoredProcedures.SaveCategory, false, "@CategoryId,@ParentCategoryId,@CategoryName,@CreatedBy");
             var response = Execute(query, param);
             return Task.FromResult((int)response.Data);
         }

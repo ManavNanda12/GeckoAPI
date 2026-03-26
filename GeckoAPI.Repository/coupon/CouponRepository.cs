@@ -49,8 +49,8 @@ namespace GeckoAPI.Repository.coupon
             param.Add("@Description", model.Description);
             param.Add("@DiscountType", model.DiscountType);
             param.Add("@DiscountValue", model.DiscountValue);
-            param.Add("@StartDate", model.StartDate);
-            param.Add("@EndDate", model.EndDate);
+            param.Add("@StartDate", DateTime.SpecifyKind(model.StartDate, DateTimeKind.Unspecified));
+            param.Add("@EndDate", DateTime.SpecifyKind(model.EndDate, DateTimeKind.Unspecified));
             param.Add("@MaxUsageCount", model.MaxUsageCount);
             param.Add("@MaxUsagePerUser", model.MaxUsagePerUser);
             param.Add("@IsActive", model.IsActive);
