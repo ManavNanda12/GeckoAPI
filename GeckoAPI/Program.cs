@@ -139,9 +139,9 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
-{
-});
+//app.UseHangfireDashboard("/hangfire", new DashboardOptions
+//{
+//});
 
 FirebaseApp.Create(new AppOptions()
 {
@@ -150,25 +150,43 @@ FirebaseApp.Create(new AppOptions()
 
 
 // Register recurring job:
-RecurringJob.AddOrUpdate<EmailJob>(
-    "send-welcome-emails",
-    job => job.SendWelcomeEmailsViaApi(),
-    "*/15 * * * *");
+//RecurringJob.AddOrUpdate<EmailJob>(
+//    "send-welcome-emails",
+//    job => job.SendWelcomeEmailsViaApi(),
+//    "*/15 * * * *");
 //RecurringJob.AddOrUpdate<EmailJob>(
 //    "clear-cache-memory",
 //    job=> job.ClearAllCache(),
 //    "0 0 * * *"
 //    );
-RecurringJob.AddOrUpdate<EmailJob>(
-    "send-monthly-reports",
-    job => job.SendMonthlySalesReportViaApi(),
-     "0 2 1 * *");
+//RecurringJob.AddOrUpdate<EmailJob>(
+//    "send-monthly-reports",
+//    job => job.SendMonthlySalesReportViaApi(),
+//     "0 2 1 * *");
 
-RecurringJob.AddOrUpdate<PushNotificationJob>(
-    "abandoned-cart-notifications",
-    job => job.SendAbandonedCartNotifications(),
-    "*/5 * * * *"
-);
+//RecurringJob.AddOrUpdate<PushNotificationJob>(
+//    "abandoned-cart-notifications",
+//    job => job.SendAbandonedCartNotifications(),
+//    "*/5 * * * *"
+//);
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    RecurringJob.AddOrUpdate<EmailJob>(
+        "send-welcome-emails",
+        job => job.SendWelcomeEmailsViaApi(),
+        "*/15 * * * *");
+
+    RecurringJob.AddOrUpdate<EmailJob>(
+        "send-monthly-reports",
+        job => job.SendMonthlySalesReportViaApi(),
+        "0 2 1 * *");
+
+    RecurringJob.AddOrUpdate<PushNotificationJob>(
+        "abandoned-cart-notifications",
+        job => job.SendAbandonedCartNotifications(),
+        "*/5 * * * *");
+});
 
 
 app.UseCors("AllowAll");
