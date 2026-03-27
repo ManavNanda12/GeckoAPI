@@ -247,7 +247,7 @@ namespace DemoWebApi.Controllers
             {
                 // log the error internally
                 response.Success = false;
-                response.Message = "An unexpected error occurred while logging in.";
+                response.Message = ex.Message + " | " + ex.StackTrace;
             }
             return response;
         }
