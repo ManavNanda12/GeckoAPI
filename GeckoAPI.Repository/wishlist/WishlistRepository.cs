@@ -27,7 +27,7 @@ namespace GeckoAPI.Repository.wishlist
             var query = GetPgFunctionQuery(
               StoredProcedures.SaveWishlist,
               false,
-              "@CustomerId, @ProductId"
+              "@ProductId,@CustomerId"
             );
 
             var result = Execute(query, param);
@@ -42,7 +42,7 @@ namespace GeckoAPI.Repository.wishlist
             var query = GetPgFunctionQuery(
               StoredProcedures.RemoveFromWhislist,
               false,
-              "@CustomerId, @ProductId"
+              "@ProductId,@CustomerId"
             );
             var result = Execute(query, param);
             return result.Data;
