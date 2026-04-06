@@ -63,8 +63,8 @@ namespace GeckoAPI.Repository.payment
                         {"PlanId", model.PlanId.ToString() }
             }
                 },
-                SuccessUrl = $"http://localhost:4200/success?session_id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = "http://localhost:4200/cancel",
+                SuccessUrl = $"https://geckocustomerportal.onrender.com/success?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = "https://geckocustomerportal.onrender.com/cancel",
             };
 
             var service = new SessionService();
