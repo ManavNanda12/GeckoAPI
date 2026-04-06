@@ -14,13 +14,15 @@ namespace GeckoAPI.Controllers
         #region Fields
         public readonly IConfiguration _configuration;
         public readonly IPaymentService _paymentService;
+        public readonly IWebHostEnvironment _env;
         #endregion
 
         #region Constructor
-        public WebhookController(IConfiguration configuration, IPaymentService paymentService)
+        public WebhookController(IConfiguration configuration, IPaymentService paymentService, IWebHostEnvironment env)
         {
             _configuration = configuration;
             _paymentService = paymentService;
+            _env = env;
         }
         #endregion
 
@@ -43,17 +45,27 @@ namespace GeckoAPI.Controllers
 
             Event stripeEvent;
 
-            try
+            if (_env.IsDevelopment())
             {
-                stripeEvent = EventUtility.ConstructEvent(
-                    json,
-                    Request.Headers["Stripe-Signature"],
-                    _configuration["Stripe:WebhookSecret"]
-                );
+                stripeEvent = EventUtility.ParseEvent(json, throwOnApiVersionMismatch: false);
+
+                if (stripeEvent == null)
+                    return BadRequest("Failed to parse Stripe event.");
             }
-            catch (StripeException ex)
+            else
             {
-                return BadRequest($"Stripe signature validation failed: {ex.Message}");
+                try
+                {
+                    stripeEvent = EventUtility.ConstructEvent(
+                        json,
+                        Request.Headers["Stripe-Signature"],
+                        _configuration["Stripe:WebhookSecret"]
+                    );
+                }
+                catch (StripeException ex)
+                {
+                    return BadRequest($"Stripe signature validation failed: {ex.Message}");
+                }
             }
 
             try

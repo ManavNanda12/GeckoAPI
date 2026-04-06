@@ -101,13 +101,13 @@ namespace GeckoAPI.Repository.payment
             param.Add("@StripeSubscriptionId", model.StripeSubscriptionId);
             param.Add("@PlanId", model.PlanId, DbType.Int32);
             param.Add("@CancelAtPeriodEnd", model.CancelAtPeriodEnd);
-            param.Add("@CurrentPeriodEnd", model.CurrentPeriodEnd);
-            param.Add("@CurrentPeriodStart", model.CurrentPeriodStart);
+            param.Add("@CurrentPeriodEnd", DateTime.SpecifyKind((DateTime)model.CurrentPeriodEnd, DateTimeKind.Unspecified));
+            param.Add("@CurrentPeriodStart", DateTime.SpecifyKind((DateTime)model.CurrentPeriodStart, DateTimeKind.Unspecified));
 
             var query = GetPgFunctionQuery(
                 StoredProcedures.SaveCustomerSubscription,
                 false,
-                "@CustomerId,@SubscriptionStatus,@StripeSubscriptionId,@PlanId,@CancelAtPeriodEnd,@CurrentPeriodEnd,@CurrentPeriodStart"
+                "@CustomerId,@PlanId,@StripeSubscriptionId,@SubscriptionStatus,@CurrentPeriodStart,@CurrentPeriodEnd,@CancelAtPeriodEnd"
             );
 
             var response = Execute(query, param);
