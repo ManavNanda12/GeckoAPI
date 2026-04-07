@@ -75,7 +75,7 @@ namespace GeckoAPI.Repository.coupon
             var query = GetPgFunctionQuery(
                 StoredProcedures.ApplyCoupon,
                 true,
-                "@CouponCode,@CartSessionId"
+                "@CartSessionId,@CouponCode"
             );
 
             var response = QueryFirstOrDefault<ApplyCouponResult>(query, param);
