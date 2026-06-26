@@ -41,13 +41,13 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
-builder.Services.AddHangfire(configuration => configuration
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options =>
-        options.UseNpgsqlConnection(
-            builder.Configuration.GetConnectionString("HangfireConnection"))));
+//builder.Services.AddHangfire(configuration => configuration
+//    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+//    .UseSimpleAssemblyNameTypeSerializer()
+//    .UseRecommendedSerializerSettings()
+//    .UsePostgreSqlStorage(options =>
+//        options.UseNpgsqlConnection(
+//            builder.Configuration.GetConnectionString("HangfireConnection"))));
 
 
 builder.Services.AddAuthorization();
@@ -112,7 +112,7 @@ builder.Services.AddRepositories();
 builder.Services.AddServices();
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddHangfireServer();
+//builder.Services.AddHangfireServer();
 builder.Services.AddHttpClient();
 builder.Services.AddTransient<EmailJob>();
 builder.Services.AddScoped<PushNotificationJob>();
@@ -179,23 +179,23 @@ if (!string.IsNullOrEmpty(firebaseJson))
 //    "*/5 * * * *"
 //);
 
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    RecurringJob.AddOrUpdate<EmailJob>(
-        "send-welcome-emails",
-        job => job.SendWelcomeEmailsViaApi(),
-        "*/15 * * * *");
+//app.Lifetime.ApplicationStarted.Register(() =>
+//{
+//    RecurringJob.AddOrUpdate<EmailJob>(
+//        "send-welcome-emails",
+//        job => job.SendWelcomeEmailsViaApi(),
+//        "*/15 * * * *");
 
-    RecurringJob.AddOrUpdate<EmailJob>(
-        "send-monthly-reports",
-        job => job.SendMonthlySalesReportViaApi(),
-        "0 2 1 * *");
+//    RecurringJob.AddOrUpdate<EmailJob>(
+//        "send-monthly-reports",
+//        job => job.SendMonthlySalesReportViaApi(),
+//        "0 2 1 * *");
 
-    RecurringJob.AddOrUpdate<PushNotificationJob>(
-        "abandoned-cart-notifications",
-        job => job.SendAbandonedCartNotifications(),
-        "*/5 * * * *");
-});
+//    RecurringJob.AddOrUpdate<PushNotificationJob>(
+//        "abandoned-cart-notifications",
+//        job => job.SendAbandonedCartNotifications(),
+//        "*/5 * * * *");
+//});
 
 
 app.UseCors("AllowAll");

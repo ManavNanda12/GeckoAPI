@@ -108,10 +108,9 @@ public abstract class BaseRepository
     #region Helper (IMPORTANT)
     protected string GetPgFunctionQuery(string functionName, bool isTable = true, string parameters = "")
     {
-        var fn = functionName.ToLower();
         return isTable
-       ? $"SELECT * FROM {fn}({parameters})"
-       : $"SELECT {fn}({parameters})";
+           ? $"SELECT * FROM public.\"{functionName}\"({parameters})"
+           : $"SELECT public.\"{functionName}\"({parameters})";
     }
     #endregion
 }
