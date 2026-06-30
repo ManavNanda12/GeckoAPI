@@ -50,46 +50,27 @@ namespace GeckoAPI.CustomerControllers
             var response = new BaseAPIResponse<PlanCheckResponseModel>();
             try
             {
+                // Use the authenticated customer id rather than trusting the body.
+                if (HttpContext.Items["UserId"] is int customerId)
+                {
+                    model.CustomerId = customerId;
+                }
+
                 var data = await _paymentService.CheckPlan(model);
                 response.Data = data;
                 response.Success = true;
                 response.Message = "Plan validation successful.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.Success = false;
-                response.Message = $"An error occurred: {ex.Message}";
+                response.Message = "We couldn't validate your plan right now. Please try again.";
             }
             return response;
         }
 
-        // ✅ MISSING ENDPOINT - Add this
-        [HttpPost("change-plan")]
-        public async Task<BaseAPIResponse<string?>> ChangePlan(ChangePlanRequest model)
-        {
-            var response = new BaseAPIResponse<string?>();
-            try
-            {
-                var checkoutUrl = await _paymentService.ChangePlanAsync(model);
-                response.Data = checkoutUrl;
-                response.Success = true;
-
-                if (string.IsNullOrEmpty(checkoutUrl))
-                {
-                    response.Message = "Plan updated successfully.";
-                }
-                else
-                {
-                    response.Message = "Redirecting to checkout...";
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = ex.Message;
-            }
-            return response;
-        }
+        // NOTE: the change-plan endpoint lives on PaymentController ("api/customer/payment/change-plan"),
+        // which is what the portal calls. The duplicate that used to be here was removed to avoid drift.
 
         #endregion
     }

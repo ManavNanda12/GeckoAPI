@@ -71,52 +71,10 @@ namespace GeckoAPI.Controllers
             try
             {
                 // =========================
-                // 🔥 HANDLE SUBSCRIPTION EVENTS
-                // =========================
-                if (stripeEvent.Type == "customer.subscription.created" ||
-                    stripeEvent.Type == "customer.subscription.updated" ||
-                    stripeEvent.Type == "customer.subscription.deleted")
-                {
-                    var subscription = stripeEvent.Data.Object as Subscription;
-
-                    if (subscription != null)
-                    {
-                        long? customerIdValue = null;
-                        long? planIdValue = null;
-                        var item = subscription.Items?.Data?.FirstOrDefault();
-
-                        DateTime? periodStart = item?.CurrentPeriodStart;
-                        DateTime? periodEnd = item?.CurrentPeriodEnd;
-
-                        if (subscription.Metadata.TryGetValue("CustomerId", out var customerIdStr)
-                            && long.TryParse(customerIdStr, out var parsedCustomerId))
-                        {
-                            customerIdValue = parsedCustomerId;
-                        }
-
-                        if (subscription.Metadata.TryGetValue("PlanId", out var planIdStr)
-                            && long.TryParse(planIdStr, out var parsedPlanId))
-                        {
-                            planIdValue = parsedPlanId;
-                        }
-
-                        var subscriptionRequest = new SaveCustomerSubscriptionRequestModel
-                        {
-                            CustomerId = (long)customerIdValue,
-                            StripeSubscriptionId = subscription.Id,
-                            SubscriptionStatus = subscription.Status,
-                            PlanId = (long)planIdValue,
-                            CancelAtPeriodEnd = subscription.CancelAtPeriodEnd,
-                            CurrentPeriodStart = periodStart,
-                            CurrentPeriodEnd = periodEnd
-                        };
-
-                        await _paymentService.SaveSubscriptionEvent(subscriptionRequest);
-                    }
-                }
-
-                // =========================
-                // 🔥 SAVE GENERIC WEBHOOK LOG
+                // 🔥 IDEMPOTENCY: log the event first; bail out if we've already processed it.
+                // Stripe delivers events at-least-once and retries, so the same event id can
+                // arrive multiple times. The SP inserts ON CONFLICT (StripeEventId) DO NOTHING
+                // and RETURNs the new row id; a duplicate returns 0.
                 // =========================
                 string? paymentIntentId = null;
                 string? chargeId = null;
@@ -127,7 +85,7 @@ namespace GeckoAPI.Controllers
                     chargeId = pi.LatestChargeId;
                 }
 
-                var request = new SaveStripeWebhookEventRequest
+                var logRequest = new SaveStripeWebhookEventRequest
                 {
                     StripeEventId = stripeEvent.Id,
                     EventType = stripeEvent.Type,
@@ -138,12 +96,73 @@ namespace GeckoAPI.Controllers
                     PayloadJson = json
                 };
 
-                await _paymentService.SaveWebhookEvent(request);
+                var insertedId = await _paymentService.SaveWebhookEvent(logRequest);
+                if (insertedId == 0)
+                {
+                    // Already processed — acknowledge so Stripe stops retrying.
+                    return Ok();
+                }
+
+                // =========================
+                // 🔥 HANDLE SUBSCRIPTION EVENTS
+                // =========================
+                if (stripeEvent.Type == "customer.subscription.created" ||
+                    stripeEvent.Type == "customer.subscription.updated" ||
+                    stripeEvent.Type == "customer.subscription.deleted")
+                {
+                    var subscription = stripeEvent.Data.Object as Subscription;
+
+                    if (subscription != null)
+                    {
+                        var item = subscription.Items?.Data?.FirstOrDefault();
+
+                        DateTime? periodStart = item?.CurrentPeriodStart;
+                        DateTime? periodEnd = item?.CurrentPeriodEnd;
+
+                        long? customerIdValue = null;
+                        long? planIdValue = null;
+
+                        if (subscription.Metadata != null
+                            && subscription.Metadata.TryGetValue("CustomerId", out var customerIdStr)
+                            && long.TryParse(customerIdStr, out var parsedCustomerId))
+                        {
+                            customerIdValue = parsedCustomerId;
+                        }
+
+                        if (subscription.Metadata != null
+                            && subscription.Metadata.TryGetValue("PlanId", out var planIdStr)
+                            && long.TryParse(planIdStr, out var parsedPlanId))
+                        {
+                            planIdValue = parsedPlanId;
+                        }
+
+                        // Without a CustomerId we cannot attribute the subscription to anyone.
+                        // Skip the save (the event is still logged above) rather than crashing
+                        // on a null unbox, which previously 500'd and caused endless retries.
+                        if (customerIdValue.HasValue && planIdValue.HasValue)
+                        {
+                            var subscriptionRequest = new SaveCustomerSubscriptionRequestModel
+                            {
+                                CustomerId = customerIdValue.Value,
+                                StripeSubscriptionId = subscription.Id,
+                                SubscriptionStatus = subscription.Status,
+                                PlanId = planIdValue.Value,
+                                StripeCustomerId = subscription.CustomerId,
+                                CancelAtPeriodEnd = subscription.CancelAtPeriodEnd,
+                                CurrentPeriodStart = periodStart,
+                                CurrentPeriodEnd = periodEnd
+                            };
+
+                            await _paymentService.SaveSubscriptionEvent(subscriptionRequest);
+                        }
+                    }
+                }
 
                 return Ok();
             }
             catch (Exception ex)
             {
+                // Returning 500 makes Stripe retry, which is what we want for transient DB failures.
                 return StatusCode(500, $"Webhook processing error: {ex}");
             }
         }

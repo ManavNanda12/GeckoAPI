@@ -15,7 +15,7 @@ namespace GeckoAPI.Repository.payment
         Task<long> SaveSubscriptionEvent(SaveCustomerSubscriptionRequestModel model);
         Task<string> ChangePlanAsync(ChangePlanRequest model);
         Task<PlanCheckResponseModel> CheckPlan(PlanCheckRequestModel model);
-        Task<string> UpgradeSubscription(ChangePlanRequest model);
-        Task ScheduleDowngrade(ChangePlanRequest model);
+        Task UpgradeSubscription(string subscriptionId, string newPriceId, long customerId, long newPlanId);
+        Task ScheduleDowngrade(string subscriptionId, string newPriceId, bool requestedIsFree, long customerId, long newPlanId);
     }
 }

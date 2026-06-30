@@ -50,22 +50,32 @@ namespace GeckoAPI.Repository.payment
                 Quantity = 1,
             }
         },
-                // ✅ FIX: Add metadata to BOTH session AND subscription
+                // Metadata on the session itself (for checkout.session.* events).
                 Metadata = new Dictionary<string, string>
         {
-            { "CustomerId", model.CustomerId.ToString() } // Session metadata
+            { "CustomerId", model.CustomerId.ToString() }
         },
                 SubscriptionData = new SessionSubscriptionDataOptions
                 {
+                    // Metadata copied onto the Subscription so customer.subscription.* webhooks
+                    // can resolve our CustomerId/PlanId.
                     Metadata = new Dictionary<string, string>
             {
-                { "CustomerId", model.CustomerId.ToString() } ,// Subscription metadata - THIS IS KEY!
-                        {"PlanId", model.PlanId.ToString() }
+                { "CustomerId", model.CustomerId.ToString() },
+                { "PlanId", model.PlanId.ToString() }
             }
                 },
                 SuccessUrl = $"https://geckocustomerportal.onrender.com/success?session_id={{CHECKOUT_SESSION_ID}}",
                 CancelUrl = "https://geckocustomerportal.onrender.com/cancel",
             };
+
+            // Reuse the existing Stripe customer when we already have one, otherwise let
+            // Stripe create a customer (its id is persisted by the webhook). This prevents
+            // a brand-new Stripe customer being created on every purchase.
+            if (!string.IsNullOrWhiteSpace(model.StripeCustomerId))
+            {
+                options.Customer = model.StripeCustomerId;
+            }
 
             var service = new SessionService();
             Session session = await service.CreateAsync(options);
@@ -90,34 +100,55 @@ namespace GeckoAPI.Repository.payment
             );
 
             var response = Execute(query, param);
+
+            // Execute() swallows DB errors and reports them via Success. If the insert truly
+            // failed (not just a duplicate), surface it so the webhook returns 500 and Stripe retries.
+            if (!response.Success)
+                throw new Exception($"Failed to save webhook event: {response.Message}");
+
+            // SP uses ON CONFLICT (StripeEventId) DO NOTHING; a duplicate event returns 0.
             return Task.FromResult(response.Data);
         }
 
         public Task<long> SaveSubscriptionEvent(SaveCustomerSubscriptionRequestModel model)
         {
             var param = new DynamicParameters();
-            param.Add("@CustomerId", model.CustomerId,DbType.Int32);
+            param.Add("@CustomerId", model.CustomerId, DbType.Int32);
             param.Add("@SubscriptionStatus", model.SubscriptionStatus);
             param.Add("@StripeSubscriptionId", model.StripeSubscriptionId);
             param.Add("@PlanId", model.PlanId, DbType.Int32);
+            param.Add("@StripeCustomerId", model.StripeCustomerId);
             param.Add("@CancelAtPeriodEnd", model.CancelAtPeriodEnd);
-            param.Add("@CurrentPeriodEnd", DateTime.SpecifyKind((DateTime)model.CurrentPeriodEnd, DateTimeKind.Unspecified));
-            param.Add("@CurrentPeriodStart", DateTime.SpecifyKind((DateTime)model.CurrentPeriodStart, DateTimeKind.Unspecified));
+
+            // Period start/end can legitimately be null on some events (e.g. incomplete
+            // subscriptions). Guard the cast instead of blindly unboxing a nullable.
+            param.Add("@CurrentPeriodEnd", model.CurrentPeriodEnd.HasValue
+                ? DateTime.SpecifyKind(model.CurrentPeriodEnd.Value, DateTimeKind.Unspecified)
+                : (DateTime?)null);
+            param.Add("@CurrentPeriodStart", model.CurrentPeriodStart.HasValue
+                ? DateTime.SpecifyKind(model.CurrentPeriodStart.Value, DateTimeKind.Unspecified)
+                : (DateTime?)null);
 
             var query = GetPgFunctionQuery(
                 StoredProcedures.SaveCustomerSubscription,
                 false,
-                "@CustomerId,@PlanId,@StripeSubscriptionId,@SubscriptionStatus,@CurrentPeriodStart,@CurrentPeriodEnd,@CancelAtPeriodEnd"
+                "@CustomerId,@PlanId,@StripeSubscriptionId,@SubscriptionStatus,@StripeCustomerId,@CurrentPeriodStart,@CurrentPeriodEnd,@CancelAtPeriodEnd"
             );
 
             var response = Execute(query, param);
+
+            if (!response.Success)
+                throw new Exception($"Failed to save customer subscription: {response.Message}");
+
             return Task.FromResult(response.Data);
         }
 
 
         public async Task<string?> ChangePlanAsync(ChangePlanRequest model)
         {
-            // 1️⃣ Check plan action from DB
+            // 1️⃣ Decide the action AND fetch all Stripe identifiers server-side.
+            //    We never trust PriceId / CurrentStripeSubscriptionId / IsFree from the client:
+            //    a tampered request could otherwise mismatch the plan and the price charged.
             var planCheck = await CheckPlan(new PlanCheckRequestModel
             {
                 CustomerId = model.CustomerId,
@@ -125,65 +156,156 @@ namespace GeckoAPI.Repository.payment
             });
 
             if (planCheck == null)
-                throw new Exception("Unable to validate subscription.");
+                throw new BusinessRuleException("Unable to validate subscription.");
+
+            // Server-derived values, with a temporary fallback to client input so the flow keeps
+            // working until SP_CheckSubscriptionAction is updated to return these columns.
+            var requestedPriceId = planCheck.RequestedStripePriceId ?? model.PriceId;
+            var currentSubscriptionId = planCheck.CurrentStripeSubscriptionId ?? model.CurrentStripeSubscriptionId;
+            var requestedIsFree = planCheck.RequestedPlanIsFree || model.IsFree;
 
             switch (planCheck.ActionType)
             {
                 case "ALLOW_BUY":
+                    // Selecting the free plan with nothing active = nothing to charge.
+                    if (requestedIsFree)
+                        return null;
+
                     return await CreateSubscription(new CreateSessionRequest
                     {
                         CustomerId = model.CustomerId,
                         PlanId = model.PlanId,
-                        PriceId = model.PriceId
+                        PriceId = requestedPriceId,
+                        StripeCustomerId = planCheck.StripeCustomerId
                     });
 
                 case "BLOCK_ALREADY_ACTIVE":
-                    throw new Exception("You already have this plan active.");
+                    throw new BusinessRuleException("You already have this plan active.");
 
                 case "ALLOW_UPGRADE":
-                    return await UpgradeSubscription(model);
+                    await UpgradeSubscription(currentSubscriptionId, requestedPriceId, model.CustomerId, model.PlanId);
+                    return null; // applied immediately, no checkout redirect
 
                 case "ALLOW_DOWNGRADE":
-                    await ScheduleDowngrade(model);
-                    return null;
+                    await ScheduleDowngrade(currentSubscriptionId, requestedPriceId, requestedIsFree, model.CustomerId, model.PlanId);
+                    return null; // takes effect at period end, no checkout redirect
 
                 default:
-                    throw new Exception("Invalid subscription action.");
+                    throw new BusinessRuleException("Invalid subscription action.");
             }
         }
 
-        public async Task<string?> UpgradeSubscription(ChangePlanRequest model)
+        /// <summary>
+        /// Upgrade applies immediately and invoices the prorated difference now.
+        /// Also updates the PlanId metadata so the webhook records the NEW plan,
+        /// and releases any pending downgrade schedule.
+        /// </summary>
+        public async Task UpgradeSubscription(string subscriptionId, string newPriceId, long customerId, long newPlanId)
         {
+            if (string.IsNullOrWhiteSpace(subscriptionId))
+                throw new BusinessRuleException("No active subscription found to upgrade.");
+
             var service = new SubscriptionService();
+            var subscription = await service.GetAsync(subscriptionId);
 
-            var subscription = await service.GetAsync(model.CurrentStripeSubscriptionId);
+            // If a downgrade was previously scheduled, release it so the immediate upgrade wins.
+            if (!string.IsNullOrEmpty(subscription.ScheduleId))
+            {
+                await new SubscriptionScheduleService().ReleaseAsync(subscription.ScheduleId);
+                subscription = await service.GetAsync(subscriptionId);
+            }
 
-            var updated = await service.UpdateAsync(model.CurrentStripeSubscriptionId,
+            await service.UpdateAsync(subscriptionId,
                 new SubscriptionUpdateOptions
                 {
                     Items = new List<SubscriptionItemOptions>
                     {
-                new SubscriptionItemOptions
-                {
-                    Id = subscription.Items.Data[0].Id,
-                    Price = model.PriceId
-                }
+                        new SubscriptionItemOptions
+                        {
+                            Id = subscription.Items.Data[0].Id,
+                            Price = newPriceId
+                        }
                     },
-                    ProrationBehavior = "create_prorations"
+                    // Invoice the proration immediately rather than deferring it to the next cycle.
+                    ProrationBehavior = "always_invoice",
+                    // Keep the subscription metadata in sync so the resulting
+                    // customer.subscription.updated webhook saves the correct plan.
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "CustomerId", customerId.ToString() },
+                        { "PlanId", newPlanId.ToString() }
+                    }
                 });
-
-            return null; // no checkout redirect needed
         }
 
-        public async Task ScheduleDowngrade(ChangePlanRequest model)
+        /// <summary>
+        /// Downgrade takes effect at the end of the current billing period.
+        ///  - Downgrade to the FREE plan => cancel the paid subscription at period end.
+        ///  - Downgrade to a cheaper PAID plan => a subscription schedule that switches
+        ///    to the new price when the current period ends (keeps current benefits until then).
+        /// </summary>
+        public async Task ScheduleDowngrade(string subscriptionId, string newPriceId, bool requestedIsFree, long customerId, long newPlanId)
         {
-            var service = new SubscriptionService();
+            if (string.IsNullOrWhiteSpace(subscriptionId))
+                throw new BusinessRuleException("No active subscription found to downgrade.");
 
-            await service.UpdateAsync(model.CurrentStripeSubscriptionId,
-                new SubscriptionUpdateOptions
+            var subscriptionService = new SubscriptionService();
+
+            // Downgrade to free = simply stop the paid subscription at period end.
+            if (requestedIsFree)
+            {
+                await subscriptionService.UpdateAsync(subscriptionId,
+                    new SubscriptionUpdateOptions { CancelAtPeriodEnd = true });
+                return;
+            }
+
+            // Downgrade to a cheaper paid plan = schedule the price change for period end.
+            var subscription = await subscriptionService.GetAsync(subscriptionId);
+            var scheduleService = new SubscriptionScheduleService();
+
+            // Reuse an existing schedule if one is attached, otherwise create one from the sub.
+            SubscriptionSchedule schedule = string.IsNullOrEmpty(subscription.ScheduleId)
+                ? await scheduleService.CreateAsync(new SubscriptionScheduleCreateOptions
                 {
-                    CancelAtPeriodEnd = true
-                });
+                    FromSubscription = subscriptionId
+                })
+                : await scheduleService.GetAsync(subscription.ScheduleId);
+
+            // The current (last) phase mirrors the live subscription; keep it untouched and
+            // append a second phase that takes over with the cheaper price at period end.
+            var currentPhase = schedule.Phases[schedule.Phases.Count - 1];
+
+            await scheduleService.UpdateAsync(schedule.Id, new SubscriptionScheduleUpdateOptions
+            {
+                EndBehavior = "release", // hand control back to the subscription after the switch
+                Phases = new List<SubscriptionSchedulePhaseOptions>
+                {
+                    new SubscriptionSchedulePhaseOptions
+                    {
+                        Items = currentPhase.Items.Select(i => new SubscriptionSchedulePhaseItemOptions
+                        {
+                            Price = i.PriceId,
+                            Quantity = i.Quantity
+                        }).ToList(),
+                        StartDate = currentPhase.StartDate,
+                        EndDate = currentPhase.EndDate
+                    },
+                    new SubscriptionSchedulePhaseOptions
+                    {
+                        Items = new List<SubscriptionSchedulePhaseItemOptions>
+                        {
+                            new SubscriptionSchedulePhaseItemOptions { Price = newPriceId, Quantity = 1 }
+                        },
+                        // Phase metadata is applied to the subscription when the phase activates,
+                        // so the webhook fired at period end records the new plan.
+                        Metadata = new Dictionary<string, string>
+                        {
+                            { "CustomerId", customerId.ToString() },
+                            { "PlanId", newPlanId.ToString() }
+                        }
+                    }
+                }
+            });
         }
 
         public Task<PlanCheckResponseModel> CheckPlan(PlanCheckRequestModel model)

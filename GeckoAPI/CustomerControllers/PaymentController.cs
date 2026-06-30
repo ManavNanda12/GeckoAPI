@@ -49,15 +49,37 @@ namespace GeckoAPI.CustomerControllers
             var response = new BaseAPIResponse<string>();
             try
             {
+                // Authoritative customer id comes from the JWT (set by CustomMiddleware),
+                // never from the request body — otherwise a caller could change someone else's plan.
+                if (HttpContext.Items["UserId"] is int customerId)
+                {
+                    model.CustomerId = customerId;
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "You must be logged in to change your plan.";
+                    return response;
+                }
+
                 var redirectUrl = await _paymentService.ChangePlanAsync(model);
-                response.Data = redirectUrl; // may be null if free plan
+                response.Data = redirectUrl; // null when handled without a checkout redirect
                 response.Success = true;
-                response.Message = "Plan updated successfully.";
+                response.Message = string.IsNullOrEmpty(redirectUrl)
+                    ? "Plan updated successfully."
+                    : "Redirecting to checkout...";
             }
-            catch (Exception ex)
+            catch (BusinessRuleException ex)
             {
+                // Safe, user-facing message (e.g. "You already have this plan active.").
                 response.Success = false;
-                response.Message = $"An error occurred: {ex.Message}";
+                response.Message = ex.Message;
+            }
+            catch (Exception)
+            {
+                // Don't leak Stripe/DB internals to the client.
+                response.Success = false;
+                response.Message = "We couldn't update your plan right now. Please try again.";
             }
             return response;
         }

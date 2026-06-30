@@ -36,6 +36,10 @@ namespace GeckoAPI.Model.models
         public string PriceId { get; set; }
         public long CustomerId { get; set; }
         public long PlanId { get; set; }
+
+        // Stripe customer id of the portal customer, if one already exists.
+        // Passed so Stripe reuses the existing customer instead of creating a duplicate.
+        public string? StripeCustomerId { get; set; }
     }
 
     public class SaveCustomerSubscriptionRequestModel
@@ -47,6 +51,9 @@ namespace GeckoAPI.Model.models
         public string StripeSubscriptionId { get; set; } = string.Empty;
 
         public string SubscriptionStatus { get; set; } = string.Empty;
+
+        // Stripe customer id, persisted so future plan changes/checkouts reuse the same customer.
+        public string? StripeCustomerId { get; set; }
 
         public DateTime? CurrentPeriodStart { get; set; }
 
@@ -78,6 +85,28 @@ namespace GeckoAPI.Model.models
         public string SubscriptionStatus { get; set; }
         public DateTime CurrentPeriodEnd { get; set; }
         public string ActionType { get; set; }
+
+        // ---- Server-side derived values (filled by SP_CheckSubscriptionAction) ----
+        // The Stripe price id of the REQUESTED plan. Used instead of trusting the client.
+        public string? RequestedStripePriceId { get; set; }
+
+        // True when the requested plan is the free plan (amount 0 / no Stripe price).
+        public bool RequestedPlanIsFree { get; set; }
+
+        // The customer's currently active Stripe subscription id (null if none).
+        public string? CurrentStripeSubscriptionId { get; set; }
+
+        // The customer's Stripe customer id (null if they have never paid).
+        public string? StripeCustomerId { get; set; }
+    }
+
+    /// <summary>
+    /// Thrown for user-facing business rule violations (e.g. "plan already active").
+    /// The API surfaces the message of these directly; all other exceptions are masked.
+    /// </summary>
+    public class BusinessRuleException : Exception
+    {
+        public BusinessRuleException(string message) : base(message) { }
     }
 
 }
